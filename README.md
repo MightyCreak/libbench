@@ -1,4 +1,4 @@
 libbench
 ========
 
-In code profiler library
+The in-code profiler library.
