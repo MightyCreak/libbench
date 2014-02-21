@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pthread") #-Werror
 
 # Add libraries.
 set(LIBBENCH_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/..")
-set(LIBBENCH_LIBRARIES "${PROJECT_SOURCE_DIR}/../libbench/release/libbench.so")
+set(LIBBENCH_LIBRARIES "${PROJECT_BINARY_DIR}/../bench/libbench.so")
 include_directories(${LIBBENCH_INCLUDE_DIRS})
 target_link_libraries(libbench_gtk ${LIBBENCH_LIBRARIES})
 

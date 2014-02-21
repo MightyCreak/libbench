@@ -10,7 +10,7 @@
 #include <gtkmm/filechooserdialog.h>
 #include <gtkmm/aboutdialog.h>
 #include "libbenchwindow.h"
-#include "libbench/xmlreader.h"
+#include "bench/xmlreader.h"
 
 LibBenchGtk::LibBenchGtk()
 	: m_box(Gtk::ORIENTATION_VERTICAL)

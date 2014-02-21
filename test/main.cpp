@@ -16,10 +16,10 @@
 #include <thread>
 #include <sched.h>
 #include <glibmm/ustring.h>
-#include "libbench/libbench.h"
-#include "libbench/helpers.h"
-#include "libbench/xmlreader.h"
-#include "libbench/xmlwriter.h"
+#include "bench/libbench.h"
+#include "bench/helpers.h"
+#include "bench/xmlreader.h"
+#include "bench/xmlwriter.h"
 
 void * my_thread_process1(void * arg)
 {

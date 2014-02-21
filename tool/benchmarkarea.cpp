@@ -10,8 +10,8 @@
 #include <algorithm>
 #include <cairomm/context.h>
 #include "benchmarkarea.h"
-#include "libbench/benchmark.h"
-#include "libbench/thread.h"
+#include "bench/benchmark.h"
+#include "bench/thread.h"
 
 namespace
 {

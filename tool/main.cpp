@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include "libbenchwindow.h"
-#include "libbench/libbench.h"
+#include "bench/libbench.h"
 
 int main(int argc, char ** argv)
 {

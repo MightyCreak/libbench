@@ -13,7 +13,7 @@
 #include <gtkmm/uimanager.h>
 #include <gtkmm/actiongroup.h>
 #include "benchmarkarea.h"
-#include "libbench/benchmark.h"
+#include "bench/benchmark.h"
 
 class LibBenchGtk : public Gtk::Window
 {
