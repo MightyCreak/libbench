@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(libbench)
+project(bench_viewer)
 
 # Add the executable.
 add_executable(libbench_gtk
