@@ -1,0 +1,4 @@
+// the configured options and settings for Tutorial
+#define LIBBENCH_VERSION_MAJOR @libbench_VERSION_MAJOR@
+#define LIBBENCH_VERSION_MINOR @libbench_VERSION_MINOR@
+
