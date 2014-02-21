@@ -6,7 +6,7 @@ The in-code profiler library.
 Directory structure
 -------------------
 
-* lib/  
+* bench/  
   The core library.
 
 * test/  
