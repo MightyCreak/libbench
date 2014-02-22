@@ -17,8 +17,8 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMLREADER_H_
-#define XMLREADER_H_
+#ifndef BENCH_XMLREADER_H
+#define BENCH_XMLREADER_H
 
 namespace Glib
 {
@@ -30,7 +30,7 @@ namespace xmlpp
 	class TextReader;
 }
 
-namespace libbench
+namespace bench
 {
 	class BenchMark;
 	class Thread;
@@ -49,4 +49,4 @@ namespace libbench
 	};
 }
 
-#endif /* XMLREADER_H_ */
+#endif // BENCH_XMLREADER_H

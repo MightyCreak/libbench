@@ -155,7 +155,7 @@ void LibBenchGtk::OpenFile(std::string const& filename)
 {
 	m_benchmark.Clear();
 
-	libbench::XmlReader xmlReader;
+    bench::XmlReader xmlReader;
 	xmlReader.Read(filename.c_str(), m_benchmark);
 
 	m_area.SetBenchMark(&m_benchmark);

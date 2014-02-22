@@ -21,7 +21,7 @@
 #include "benchmark.h"
 #include "thread.h"
 
-namespace libbench
+namespace bench
 {
     BenchMark::BenchMark()
     {

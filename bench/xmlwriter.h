@@ -17,8 +17,8 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERIALIZER_H_
-#define SERIALIZER_H_
+#ifndef BENCH_XMLWRITER_H
+#define BENCH_XMLWRITER_H
 
 #include <ostream>
 #include <time.h>
@@ -28,7 +28,7 @@ namespace xmlpp
 	class Element;
 }
 
-namespace libbench
+namespace bench
 {
 	class BenchMark;
 	class Thread;
@@ -54,4 +54,4 @@ namespace libbench
 	};
 }
 
-#endif /* SERIALIZER_H_ */
+#endif // BENCH_XMLWRITER_H

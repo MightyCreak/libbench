@@ -25,7 +25,7 @@
 #include "benchmark.h"
 #include "thread.h"
 
-namespace libbench
+namespace bench
 {
 	XmlWriter::XmlWriter(std::ostream& stream)
 		: m_stream(stream)

@@ -35,7 +35,7 @@
 //	}
 //}
 
-namespace libbench
+namespace bench
 {
 //	struct indent
 //	{

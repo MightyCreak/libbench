@@ -1,14 +1,26 @@
 /*
- * xmlcommon.h
+ * Copyright (C) 2014 Romain "Creak" Failliot.
  *
- *  Created on: 2013-10-12
- *      Author: creak
+ * This file is part of libbench.
+ *
+ * libbench is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * libbench is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMLCOMMON_H_
-#define XMLCOMMON_H_
+#ifndef BENCH_XMLCOMMON_H
+#define BENCH_XMLCOMMON_H
 
-namespace libbench
+namespace bench
 {
 	// Tags.
 	static Glib::ustring const kXmlTagBenchmark("benchmark");
@@ -33,4 +45,4 @@ namespace libbench
 	static Glib::ustring const kXmlDataNanoSecond("µs");
 }
 
-#endif /* XMLCOMMON_H_ */
+#endif // BENCH_XMLCOMMON_H

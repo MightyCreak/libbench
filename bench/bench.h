@@ -17,14 +17,14 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIBBENCH_H_
-#define LIBBENCH_H_
+#ifndef BENCH_BENCH_H
+#define BENCH_BENCH_H
 
 #include <map>
 #include <ostream>
 #include "benchmark.h"
 
-namespace libbench
+namespace bench
 {
 	typedef std::map<pthread_t, ThreadId> ThreadIdMap;
 
@@ -61,12 +61,12 @@ namespace libbench
 	public:
 		ScopedBench(char const* name)
 		{
-			libbench::Manager::GetInstance()->StartBench(name);
+            bench::Manager::GetInstance()->StartBench(name);
 		}
 
 		~ScopedBench()
 		{
-			libbench::Manager::GetInstance()->StopBench();
+            bench::Manager::GetInstance()->StopBench();
 		}
 	};
 
@@ -74,4 +74,4 @@ namespace libbench
     unsigned int GetMinorVersion();
 }
 
-#endif /* LIBBENCH_H_ */
+#endif // BENCH_BENCH_H

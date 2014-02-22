@@ -1,18 +1,30 @@
 /*
- * helpers.h
+ * Copyright (C) 2014 Romain "Creak" Failliot.
  *
- *  Created on: 2013-10-12
- *      Author: creak
+ * This file is part of libbench.
+ *
+ * libbench is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * libbench is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HELPERS_H_
-#define HELPERS_H_
+#ifndef BENCH_HELPERS_H
+#define BENCH_HELPERS_H
 
 #ifdef USE_LIBBENCH
 
-#	define LIBBENCH_START_PROFILE(name)		libbench::Manager::GetInstance()->StartBench(#name)
-#	define LIBBENCH_STOP_PROFILE()			libbench::Manager::GetInstance()->StopBench()
-#	define LIBBENCH_SCOPED_PROFILE(name)	libbench::ScopedBench __libbench ## name(#name)
+#	define LIBBENCH_START_PROFILE(name)		bench::Manager::GetInstance()->StartBench(#name)
+#	define LIBBENCH_STOP_PROFILE()			bench::Manager::GetInstance()->StopBench()
+#	define LIBBENCH_SCOPED_PROFILE(name)	bench::ScopedBench __libbench ## name(#name)
 
 #else
 
@@ -22,4 +34,4 @@
 
 #endif
 
-#endif /* HELPERS_H_ */
+#endif // BENCH_HELPERS_H

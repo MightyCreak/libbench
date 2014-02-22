@@ -19,12 +19,12 @@
 
 #include <iostream>
 #include "libbenchwindow.h"
-#include "bench/libbench.h"
+#include "bench/bench.h"
 
 int main(int argc, char ** argv)
 {
     // Print libbench version.
-    std::cout << "libbench version: " << libbench::GetMajorVersion() << "." << libbench::GetMinorVersion() << std::endl;
+    std::cout << "libbench version: " << bench::GetMajorVersion() << "." << bench::GetMinorVersion() << std::endl;
 
 	Glib::RefPtr<Gtk::Application> app =
 			Gtk::Application::create(argc, argv,

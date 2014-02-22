@@ -17,13 +17,13 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef THREAD_H_
-#define THREAD_H_
+#ifndef BENCH_THREAD_H
+#define BENCH_THREAD_H
 
 #include <vector>
 #include "benchlist.h"
 
-namespace libbench
+namespace bench
 {
 	class Thread
 	{
@@ -49,4 +49,4 @@ namespace libbench
 	};
 }
 
-#endif /* THREAD_H_ */
+#endif // BENCH_THREAD_H

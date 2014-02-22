@@ -23,7 +23,7 @@
 #include <string.h>
 #include "thread.h"
 
-namespace libbench
+namespace bench
 {
 	Thread::Thread(char const* name, int coreId)
 		: m_name(strdup(name))

@@ -17,13 +17,13 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BENCHMARK_H_
-#define BENCHMARK_H_
+#ifndef BENCH_BENCHMARK_H
+#define BENCH_BENCHMARK_H
 
 #include <vector>
 #include <cstddef>
 
-namespace libbench
+namespace bench
 {
     typedef std::vector<std::string> StringVector;
 
@@ -56,4 +56,4 @@ namespace libbench
 	};
 }
 
-#endif /* BENCHMARK_H_ */
+#endif // BENCH_BENCHMARK_H

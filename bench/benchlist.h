@@ -17,15 +17,15 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BENCH_H_
-#define BENCH_H_
+#ifndef BENCH_BENCHLIST_H
+#define BENCH_BENCHLIST_H
 
 #include <time.h>
 #include <vector>
 #include <map>
 #include <unordered_map>
 
-namespace libbench
+namespace bench
 {
 	struct Bench
 	{
@@ -65,4 +65,4 @@ namespace libbench
 	};
 }
 
-#endif /* BENCH_H_ */
+#endif // BENCH_BENCHLIST_H

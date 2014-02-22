@@ -33,7 +33,7 @@ namespace
 
 	struct SortBenchByStartHieAndTime
 	{
-		bool operator () (libbench::Bench const & a, libbench::Bench const & b)
+        bool operator () (bench::Bench const & a, bench::Bench const & b)
 		{
 			if(a.m_parent < b.m_parent)
 				return true;
@@ -50,7 +50,7 @@ namespace
 	};
 }
 
-namespace libbench
+namespace bench
 {
 	int const BenchList::kNoParent = -1;
 

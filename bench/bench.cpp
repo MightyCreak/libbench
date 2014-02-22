@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <sched.h>
-#include "libbench.h"
+#include "bench.h"
 #include "thread.h"
 #include "xmlwriter.h"
 #include "config.h"
@@ -39,7 +39,7 @@ namespace
 	}
 }
 
-namespace libbench
+namespace bench
 {
 	Manager * Manager::ms_instance = nullptr;
 

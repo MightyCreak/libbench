@@ -28,7 +28,7 @@
 #include <thread>
 #include <sched.h>
 #include <glibmm/ustring.h>
-#include "bench/libbench.h"
+#include "bench/bench.h"
 #include "bench/helpers.h"
 #include "bench/xmlreader.h"
 #include "bench/xmlwriter.h"
@@ -91,7 +91,7 @@ void * my_thread_process3(void * arg)
 
 int main(int argc, char ** argv)
 {
-	libbench::Manager::CreateInstance();
+    bench::Manager::CreateInstance();
 
 	unsigned int thrIdx = 0;
 	pthread_t thr[20];
@@ -148,7 +148,7 @@ int main(int argc, char ** argv)
 	    pthread_join(thr[u], &ret);
     }
 
-	libbench::Manager * lbManager = libbench::Manager::GetInstance();
+    bench::Manager * lbManager = bench::Manager::GetInstance();
 	lbManager->Finalize();
 	if(argc > 1)
 	{
@@ -170,6 +170,6 @@ int main(int argc, char ** argv)
 		lbManager->Write(std::cout);
 	}
 
-	libbench::Manager::DestroyInstance();
+    bench::Manager::DestroyInstance();
 	return EXIT_SUCCESS;
 }

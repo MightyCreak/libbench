@@ -17,8 +17,8 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIBBENCHWINDOW_H_
-#define LIBBENCHWINDOW_H_
+#ifndef TOOL_LIBBENCHWINDOW_H
+#define TOOL_LIBBENCHWINDOW_H
 
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>
@@ -50,7 +50,7 @@ private:
 	Glib::RefPtr<Gtk::UIManager> m_refUIManager;
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
-	libbench::BenchMark m_benchmark;
+    bench::BenchMark m_benchmark;
 };
 
-#endif /* LIBBENCHWINDOW_H_ */
+#endif // TOOL_LIBBENCHWINDOW_H

@@ -59,7 +59,7 @@ BenchMarkArea::BenchMarkArea()
     add_events(Gdk::SCROLL_MASK);    
 }
 
-void BenchMarkArea::SetBenchMark(libbench::BenchMark const* benchmark)
+void BenchMarkArea::SetBenchMark(bench::BenchMark const* benchmark)
 {
     m_drawCores.clear();
 	m_benchmark = benchmark;
@@ -68,15 +68,15 @@ void BenchMarkArea::SetBenchMark(libbench::BenchMark const* benchmark)
 
     // Get minimum start time.
     double globalMinTime = std::numeric_limits<double>::max();
-    libbench::ThreadVector const& threads = m_benchmark->GetThreadVector();
-    for(libbench::ThreadVector::const_iterator tit = threads.begin(); tit != threads.end(); ++tit)
+    bench::ThreadVector const& threads = m_benchmark->GetThreadVector();
+    for(bench::ThreadVector::const_iterator tit = threads.begin(); tit != threads.end(); ++tit)
     {
-        libbench::Thread const* thread = *tit;
-        libbench::BenchList const& benchList = thread->GetBenchList();
-        libbench::BenchVector const& benches = benchList.GetBenches();
-        for(libbench::BenchVector::const_iterator bit = benches.begin(); bit != benches.end(); ++bit)
+        bench::Thread const* thread = *tit;
+        bench::BenchList const& benchList = thread->GetBenchList();
+        bench::BenchVector const& benches = benchList.GetBenches();
+        for(bench::BenchVector::const_iterator bit = benches.begin(); bit != benches.end(); ++bit)
         {
-            libbench::Bench const& bench = *bit;
+            bench::Bench const& bench = *bit;
             globalMinTime = std::min(globalMinTime, bench.m_start.tv_sec + bench.m_start.tv_nsec * 1e-9);
         }
     }
@@ -89,24 +89,24 @@ void BenchMarkArea::SetBenchMark(libbench::BenchMark const* benchmark)
         DrawCore& drawCore = m_drawCores[u];
         drawCore.m_name = m_benchmark->GetCoreName(u);
 
-        std::vector<libbench::Thread const*> coreThreads;
+        std::vector<bench::Thread const*> coreThreads;
         coreThreads.reserve(threads.size());
-        for(libbench::ThreadVector::const_iterator tit = threads.begin(); tit != threads.end(); ++tit)
+        for(bench::ThreadVector::const_iterator tit = threads.begin(); tit != threads.end(); ++tit)
         {
-            libbench::Thread const* thread = *tit;
+            bench::Thread const* thread = *tit;
             if(thread->GetCoreId() == u)
                 coreThreads.push_back(thread);
         }
         
-        for(std::vector<libbench::Thread const*>::const_iterator tit = coreThreads.begin(); tit != coreThreads.end(); ++tit)
+        for(std::vector<bench::Thread const*>::const_iterator tit = coreThreads.begin(); tit != coreThreads.end(); ++tit)
         {
-            libbench::Thread const* thread = *tit;
+            bench::Thread const* thread = *tit;
 
-            libbench::BenchList const& benchList = thread->GetBenchList();
-            libbench::BenchVector const& benches = benchList.GetBenches();
-            for(libbench::BenchVector::const_iterator bit = benches.begin(); bit != benches.end(); ++bit)
+            bench::BenchList const& benchList = thread->GetBenchList();
+            bench::BenchVector const& benches = benchList.GetBenches();
+            for(bench::BenchVector::const_iterator bit = benches.begin(); bit != benches.end(); ++bit)
             {
-                libbench::Bench const& bench = *bit;
+                bench::Bench const& bench = *bit;
                 if(bench.m_parent != -1)
                     continue;
 

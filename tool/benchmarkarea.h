@@ -17,12 +17,12 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BENCHMARKAREA_H_
-#define BENCHMARKAREA_H_
+#ifndef TOOL_BENCHMARKAREA_H
+#define TOOL_BENCHMARKAREA_H
 
 #include <gtkmm/drawingarea.h>
 
-namespace libbench
+namespace bench
 {
 	class BenchMark;
 }
@@ -32,7 +32,7 @@ class BenchMarkArea : public Gtk::DrawingArea
 public:
 	BenchMarkArea();
 
-	void SetBenchMark(libbench::BenchMark const* benchmark);
+    void SetBenchMark(bench::BenchMark const* benchmark);
 
 protected:
 	// Override default signal handler.
@@ -67,11 +67,11 @@ private:
 
 private:
     std::vector<DrawCore> m_drawCores;
-	libbench::BenchMark const* m_benchmark;
+    bench::BenchMark const* m_benchmark;
 
 	double m_timeToPx;
     Glib::RefPtr<Pango::Layout> m_coreLayout;
     Glib::RefPtr<Pango::Layout> m_threadLayout;
 };
 
-#endif /* BENCHMARKAREA_H_ */
+#endif // TOOL_BENCHMARKAREA_H

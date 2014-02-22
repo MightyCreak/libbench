@@ -3,7 +3,9 @@ project(bench_viewer)
 
 # Add the executable.
 add_executable(libbench_gtk
+    benchmarkarea.h
     benchmarkarea.cpp
+    libbenchwindow.h
     libbenchwindow.cpp
     main.cpp)
 
