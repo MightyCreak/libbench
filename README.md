@@ -6,13 +6,13 @@ The in-code profiler library.
 Directory structure
 -------------------
 
-* bench/  
+* **bench/**
   The core library.
 
-* test/  
+* **test/**
   A simple multi-threaded test that generates a profiling file.
 
-* tool/  
+* **tool/**
   The tools that display the content created by the library.
   At the moment it includes a GTK viewer.
 
