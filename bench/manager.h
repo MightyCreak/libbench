@@ -17,44 +17,44 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BENCH_BENCHMARK_H
-#define BENCH_BENCHMARK_H
+#ifndef BENCH_MANAGER_H
+#define BENCH_MANAGER_H
 
-#include <vector>
-#include <string>
-#include <cstddef>
+#include <map>
+#include <ostream>
+#include "benchmark.h"
 
 namespace bench
 {
-    typedef std::vector<std::string> StringVector;
+    typedef std::map<pthread_t, ThreadId> ThreadIdMap;
 
-    class Thread;
-    typedef std::vector<Thread*> ThreadVector;
-
-    typedef size_t ThreadId;
-
-    static ThreadId const kInvalidThread(~0);
-
-    class BenchMark
+    class Manager
     {
     public:
-        BenchMark();
-        ~BenchMark();
+        static void CreateInstance();
+        static void DestroyInstance();
+        static Manager* GetInstance();
 
-        unsigned int GetNumberOfCores() const;
-        void SetCoreName(unsigned int id, char const* name);
-        char const* GetCoreName(unsigned int id) const;
+        ~Manager();
 
-        ThreadId AddThread(char const* name, int coreId);
-        Thread* GetThread(ThreadId id) const;
-        ThreadVector const& GetThreadVector() const;
+        void StartBench(char const* benchName);
+        void StopBench();
         void Finalize();
         void Clear();
+        void Write(std::ostream& stream) const;
 
     private:
-        StringVector m_coreNames;
-        ThreadVector m_threads;
+        Manager();
+
+        ThreadId RegisterThread(pthread_t thread);
+
+    private:
+        static Manager* ms_instance;
+
+        BenchMark m_benchmark;
+        ThreadIdMap m_threadIds;
+        mutable pthread_mutex_t m_mutex;
     };
 }
 
-#endif // BENCH_BENCHMARK_H
+#endif // BENCH_MANAGER_H

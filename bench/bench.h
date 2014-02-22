@@ -20,58 +20,38 @@
 #ifndef BENCH_BENCH_H
 #define BENCH_BENCH_H
 
-#include <map>
 #include <ostream>
 #include "benchmark.h"
 
+extern "C"
+{
+
 namespace bench
 {
-    typedef std::map<pthread_t, ThreadId> ThreadIdMap;
+    /// Get the version string.
+    /// @return Version string.
+    char const* GetVersionString();
 
-    unsigned int GetMajorVersion();
-    unsigned int GetMinorVersion();
+    /// Initialize the library.
+    void Initialize();
 
-    class Manager
-    {
-    public:
-        static void CreateInstance();
-        static void DestroyInstance();
-        static Manager* GetInstance();
+    /// Shutdown the library.
+    void Shutdown();
 
-        ~Manager();
+    /// Start a new bench.
+    /// @param name name of the bench.
+    void StartBench(char const* name);
 
-        void StartBench(char const* benchName);
-        void StopBench();
-        void Finalize();
-        void Clear();
-        void Write(std::ostream& stream) const;
+    /// Stop the current bench.
+    void StopBench();
 
-    private:
-        Manager();
+    /// Finalize the profiling.
+    void Finalize();
 
-        ThreadId RegisterThread(pthread_t thread);
+    /// Write the profiling in an XML file.
+    void Write(std::ostream& stream);
+}
 
-    private:
-        static Manager* ms_instance;
-
-        BenchMark m_benchmark;
-        ThreadIdMap m_threadIds;
-        mutable pthread_mutex_t m_mutex;
-    };
-
-    class ScopedBench
-    {
-    public:
-        ScopedBench(char const* name)
-        {
-            bench::Manager::GetInstance()->StartBench(name);
-        }
-
-        ~ScopedBench()
-        {
-            bench::Manager::GetInstance()->StopBench();
-        }
-    };
 }
 
 #endif // BENCH_BENCH_H

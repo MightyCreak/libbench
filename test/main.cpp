@@ -91,7 +91,9 @@ void * my_thread_process3(void * arg)
 
 int main(int argc, char ** argv)
 {
-    bench::Manager::CreateInstance();
+    bench::Initialize();
+
+    std::cout << "libbench v" << bench::GetVersionString() << std::endl;
 
     unsigned int thrIdx = 0;
     pthread_t thr[20];
@@ -148,14 +150,13 @@ int main(int argc, char ** argv)
         pthread_join(thr[u], &ret);
     }
 
-    bench::Manager * lbManager = bench::Manager::GetInstance();
-    lbManager->Finalize();
+    bench::Finalize();
     if(argc > 1)
     {
         std::ofstream filestream(argv[1], std::ofstream::out);
         if(!filestream)
             return EXIT_FAILURE;
-        lbManager->Write(filestream);
+        bench::Write(filestream);
 
 //        libbench::XmlReader xmlReader;
 //        libbench::BenchMark readBenchmark;
@@ -167,9 +168,9 @@ int main(int argc, char ** argv)
     }
     else
     {
-        lbManager->Write(std::cout);
+        bench::Write(std::cout);
     }
 
-    bench::Manager::DestroyInstance();
+    bench::Shutdown();
     return EXIT_SUCCESS;
 }

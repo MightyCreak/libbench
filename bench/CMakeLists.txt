@@ -14,6 +14,8 @@ add_library(bench SHARED
     bench.h
     bench.cpp
     helpers.h
+    manager.h
+    manager.cpp
     thread.h
     thread.cpp
     xmlcommon.h

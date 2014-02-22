@@ -22,8 +22,25 @@
 
 #ifdef USE_LIBBENCH
 
-#	define LIBBENCH_START_PROFILE(name)		bench::Manager::GetInstance()->StartBench(#name)
-#	define LIBBENCH_STOP_PROFILE()			bench::Manager::GetInstance()->StopBench()
+namespace bench
+{
+    class ScopedBench
+    {
+    public:
+        ScopedBench(char const* name)
+        {
+            StartBench(name);
+        }
+
+        ~ScopedBench()
+        {
+            StopBench();
+        }
+    };
+}
+
+#	define LIBBENCH_START_PROFILE(name)		bench::StartBench(#name)
+#	define LIBBENCH_STOP_PROFILE()			bench::StopBench()
 #	define LIBBENCH_SCOPED_PROFILE(name)	bench::ScopedBench __libbench ## name(#name)
 
 #else
