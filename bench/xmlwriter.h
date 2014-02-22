@@ -25,33 +25,33 @@
 
 namespace xmlpp
 {
-	class Element;
+    class Element;
 }
 
 namespace bench
 {
-	class BenchMark;
-	class Thread;
-	class BenchList;
-	struct Bench;
+    class BenchMark;
+    class Thread;
+    class BenchList;
+    struct Bench;
 
-	class XmlWriter
-	{
-	public:
-		XmlWriter(std::ostream& stream);
+    class XmlWriter
+    {
+    public:
+        XmlWriter(std::ostream& stream);
 
-		void Write(BenchMark const& value);
+        void Write(BenchMark const& value);
 
-	private:
-    	void WriteCores(xmlpp::Element* element, BenchMark const& benchmark);
-		void WriteThread(xmlpp::Element* element, Thread const& thread);
-		void WriteBenchList(xmlpp::Element* element, BenchList const& benchList);
-		void WriteBenchRec(xmlpp::Element* element, BenchList const& benchList, Bench const& bench);
+    private:
+        void WriteCores(xmlpp::Element* element, BenchMark const& benchmark);
+        void WriteThread(xmlpp::Element* element, Thread const& thread);
+        void WriteBenchList(xmlpp::Element* element, BenchList const& benchList);
+        void WriteBenchRec(xmlpp::Element* element, BenchList const& benchList, Bench const& bench);
 
-	private:
-		std::ostream& m_stream;
-		__time_t m_starttime;
-	};
+    private:
+        std::ostream& m_stream;
+        __time_t m_starttime;
+    };
 }
 
 #endif // BENCH_XMLWRITER_H

@@ -25,28 +25,28 @@
 
 namespace bench
 {
-	class Thread
-	{
-		friend class XmlWriter;
-		friend class XmlReader;
+    class Thread
+    {
+        friend class XmlWriter;
+        friend class XmlReader;
 
-	public:
-		Thread(char const* name, int coreId);
-		~Thread();
+    public:
+        Thread(char const* name, int coreId);
+        ~Thread();
 
         char const* GetName() const;
         int GetCoreId() const;
         BenchList const& GetBenchList() const;
-		void StartBench(char const* benchName);
-		void StopBench();
-		void Finalize();
-		void Clear();
+        void StartBench(char const* benchName);
+        void StopBench();
+        void Finalize();
+        void Clear();
 
-	private:
-		char* m_name;
-		int m_coreId;
-		BenchList m_benchList;
-	};
+    private:
+        char* m_name;
+        int m_coreId;
+        BenchList m_benchList;
+    };
 }
 
 #endif // BENCH_THREAD_H

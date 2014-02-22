@@ -32,8 +32,8 @@ namespace
 }
 
 BenchMarkArea::BenchMarkArea()
-	: m_benchmark(nullptr)
-	, m_timeToPx(500.0) // 5ms -> 1px
+    : m_benchmark(nullptr)
+    , m_timeToPx(500.0) // 5ms -> 1px
 {
     // http://developer.gnome.org/pangomm/unstable/classPango_1_1FontDescription.html
     // http://developer.gnome.org/pangomm/unstable/classPango_1_1Layout.html
@@ -56,15 +56,15 @@ BenchMarkArea::BenchMarkArea()
     m_threadLayout = create_pango_layout("");
     m_threadLayout->set_font_description(threadFont);
 
-    add_events(Gdk::SCROLL_MASK);    
+    add_events(Gdk::SCROLL_MASK);
 }
 
 void BenchMarkArea::SetBenchMark(bench::BenchMark const* benchmark)
 {
     m_drawCores.clear();
-	m_benchmark = benchmark;
-	if(!m_benchmark)
-	    return;
+    m_benchmark = benchmark;
+    if(!m_benchmark)
+        return;
 
     // Get minimum start time.
     double globalMinTime = std::numeric_limits<double>::max();
@@ -123,8 +123,8 @@ void BenchMarkArea::SetBenchMark(bench::BenchMark const* benchmark)
 
 bool BenchMarkArea::on_draw(Cairo::RefPtr<Cairo::Context> const& cr)
 {
-	if(!m_benchmark)
-	    return false;
+    if(!m_benchmark)
+        return false;
 
     cr->save();
     cr->set_antialias(Cairo::ANTIALIAS_NONE);

@@ -30,25 +30,25 @@
 class LibBenchGtk : public Gtk::Window
 {
 public:
-	LibBenchGtk();
-	virtual ~LibBenchGtk();
+    LibBenchGtk();
+    virtual ~LibBenchGtk();
 
 private:
-	// Signal handlers.
-	void OnMenuFileOpen();
-	void OnMenuFileClose();
-	void OnMenuFileQuit();
-	void OnMenuHelpAbout();
+    // Signal handlers.
+    void OnMenuFileOpen();
+    void OnMenuFileClose();
+    void OnMenuFileQuit();
+    void OnMenuHelpAbout();
 
-	void OpenFile(std::string const& filename);
+    void OpenFile(std::string const& filename);
 
 private:
-	// Member widgets.
-	Gtk::Box m_box;
-	BenchMarkArea m_area;
+    // Member widgets.
+    Gtk::Box m_box;
+    BenchMarkArea m_area;
 
-	Glib::RefPtr<Gtk::UIManager> m_refUIManager;
-	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
+    Glib::RefPtr<Gtk::UIManager> m_refUIManager;
+    Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
     bench::BenchMark m_benchmark;
 };

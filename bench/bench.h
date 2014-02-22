@@ -26,52 +26,52 @@
 
 namespace bench
 {
-	typedef std::map<pthread_t, ThreadId> ThreadIdMap;
-
-	class Manager
-	{
-	public:
-		static void CreateInstance();
-		static void DestroyInstance();
-		static Manager* GetInstance();
-
-		~Manager();
-
-		void StartBench(char const* benchName);
-		void StopBench();
-		void Finalize();
-		void Clear();
-		void Write(std::ostream& stream) const;
-
-	private:
-		Manager();
-
-		ThreadId RegisterThread(pthread_t thread);
-
-	private:
-		static Manager* ms_instance;
-
-		BenchMark m_benchmark;
-		ThreadIdMap m_threadIds;
-		mutable pthread_mutex_t m_mutex;
-	};
-
-	class ScopedBench
-	{
-	public:
-		ScopedBench(char const* name)
-		{
-            bench::Manager::GetInstance()->StartBench(name);
-		}
-
-		~ScopedBench()
-		{
-            bench::Manager::GetInstance()->StopBench();
-		}
-	};
+    typedef std::map<pthread_t, ThreadId> ThreadIdMap;
 
     unsigned int GetMajorVersion();
     unsigned int GetMinorVersion();
+
+    class Manager
+    {
+    public:
+        static void CreateInstance();
+        static void DestroyInstance();
+        static Manager* GetInstance();
+
+        ~Manager();
+
+        void StartBench(char const* benchName);
+        void StopBench();
+        void Finalize();
+        void Clear();
+        void Write(std::ostream& stream) const;
+
+    private:
+        Manager();
+
+        ThreadId RegisterThread(pthread_t thread);
+
+    private:
+        static Manager* ms_instance;
+
+        BenchMark m_benchmark;
+        ThreadIdMap m_threadIds;
+        mutable pthread_mutex_t m_mutex;
+    };
+
+    class ScopedBench
+    {
+    public:
+        ScopedBench(char const* name)
+        {
+            bench::Manager::GetInstance()->StartBench(name);
+        }
+
+        ~ScopedBench()
+        {
+            bench::Manager::GetInstance()->StopBench();
+        }
+    };
 }
 
 #endif // BENCH_BENCH_H

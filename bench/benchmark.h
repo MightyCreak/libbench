@@ -27,33 +27,33 @@ namespace bench
 {
     typedef std::vector<std::string> StringVector;
 
-	class Thread;
-	typedef std::vector<Thread*> ThreadVector;
+    class Thread;
+    typedef std::vector<Thread*> ThreadVector;
 
-	typedef size_t ThreadId;
+    typedef size_t ThreadId;
 
-	static ThreadId const kInvalidThread(~0);
+    static ThreadId const kInvalidThread(~0);
 
-	class BenchMark
-	{
-	public:
-	    BenchMark();
-		~BenchMark();
-		
-		unsigned int GetNumberOfCores() const;
-		void SetCoreName(unsigned int id, char const* name);
-		char const* GetCoreName(unsigned int id) const;
+    class BenchMark
+    {
+    public:
+        BenchMark();
+        ~BenchMark();
 
-		ThreadId AddThread(char const* name, int coreId);
-		Thread* GetThread(ThreadId id) const;
-		ThreadVector const& GetThreadVector() const;
-		void Finalize();
-		void Clear();
+        unsigned int GetNumberOfCores() const;
+        void SetCoreName(unsigned int id, char const* name);
+        char const* GetCoreName(unsigned int id) const;
 
-	private:
-	    StringVector m_coreNames;
-		ThreadVector m_threads;
-	};
+        ThreadId AddThread(char const* name, int coreId);
+        Thread* GetThread(ThreadId id) const;
+        ThreadVector const& GetThreadVector() const;
+        void Finalize();
+        void Clear();
+
+    private:
+        StringVector m_coreNames;
+        ThreadVector m_threads;
+    };
 }
 
 #endif // BENCH_BENCHMARK_H

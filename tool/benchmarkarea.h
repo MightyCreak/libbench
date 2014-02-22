@@ -24,20 +24,20 @@
 
 namespace bench
 {
-	class BenchMark;
+    class BenchMark;
 }
 
 class BenchMarkArea : public Gtk::DrawingArea
 {
 public:
-	BenchMarkArea();
+    BenchMarkArea();
 
     void SetBenchMark(bench::BenchMark const* benchmark);
 
 protected:
-	// Override default signal handler.
-	virtual bool on_draw(Cairo::RefPtr<Cairo::Context> const& cr) override;
-	virtual bool on_scroll_event(GdkEventScroll* event) override;
+    // Override default signal handler.
+    virtual bool on_draw(Cairo::RefPtr<Cairo::Context> const& cr) override;
+    virtual bool on_scroll_event(GdkEventScroll* event) override;
 
     // Draw methods.
     void DrawCoreText(Cairo::RefPtr<Cairo::Context> const& cr,
@@ -69,7 +69,7 @@ private:
     std::vector<DrawCore> m_drawCores;
     bench::BenchMark const* m_benchmark;
 
-	double m_timeToPx;
+    double m_timeToPx;
     Glib::RefPtr<Pango::Layout> m_coreLayout;
     Glib::RefPtr<Pango::Layout> m_threadLayout;
 };

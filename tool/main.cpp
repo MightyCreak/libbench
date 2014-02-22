@@ -26,9 +26,9 @@ int main(int argc, char ** argv)
     // Print libbench version.
     std::cout << "libbench version: " << bench::GetMajorVersion() << "." << bench::GetMinorVersion() << std::endl;
 
-	Glib::RefPtr<Gtk::Application> app =
-			Gtk::Application::create(argc, argv,
-					"org.gtkmm.libbenchgtk");
-	LibBenchGtk window;
-	return app->run(window);
+    Glib::RefPtr<Gtk::Application> app =
+            Gtk::Application::create(argc, argv,
+                                     "org.gtkmm.libbenchgtk");
+    LibBenchGtk window;
+    return app->run(window);
 }

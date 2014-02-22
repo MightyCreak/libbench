@@ -22,31 +22,31 @@
 
 namespace Glib
 {
-	class ustring;
+    class ustring;
 }
 
 namespace xmlpp
 {
-	class TextReader;
+    class TextReader;
 }
 
 namespace bench
 {
-	class BenchMark;
-	class Thread;
-	class BenchList;
+    class BenchMark;
+    class Thread;
+    class BenchList;
 
-	class XmlReader
-	{
-	public:
-		void Read(Glib::ustring const& filename, BenchMark& benchmark);
+    class XmlReader
+    {
+    public:
+        void Read(Glib::ustring const& filename, BenchMark& benchmark);
 
-	private:
-		void ReadCores(xmlpp::TextReader& reader, BenchMark& benchmark);
-		void ReadThread(xmlpp::TextReader& reader, BenchMark& benchmark);
-		void ReadBenchList(xmlpp::TextReader& reader, BenchList& benchList);
-		void ReadBench(xmlpp::TextReader& reader, BenchList& benchList);
-	};
+    private:
+        void ReadCores(xmlpp::TextReader& reader, BenchMark& benchmark);
+        void ReadThread(xmlpp::TextReader& reader, BenchMark& benchmark);
+        void ReadBenchList(xmlpp::TextReader& reader, BenchList& benchList);
+        void ReadBench(xmlpp::TextReader& reader, BenchList& benchList);
+    };
 }
 
 #endif // BENCH_XMLREADER_H

@@ -35,61 +35,61 @@ namespace bench
         }
     }
 
-	BenchMark::~BenchMark()
-	{
-		Clear();
-	}
+    BenchMark::~BenchMark()
+    {
+        Clear();
+    }
 
-	unsigned int BenchMark::GetNumberOfCores() const
-	{
-	    return m_coreNames.size();
-	}
-	
-	void BenchMark::SetCoreName(unsigned int id, char const* name)
-	{
-	    m_coreNames[id] = name;
-	}
-	
-	char const* BenchMark::GetCoreName(unsigned int id) const
-	{
-	    return m_coreNames[id].c_str();
-	}
+    unsigned int BenchMark::GetNumberOfCores() const
+    {
+        return m_coreNames.size();
+    }
 
-	ThreadId BenchMark::AddThread(char const* name, int coreId)
-	{
-		Thread* thread = new Thread(name, coreId);
-		m_threads.push_back(thread);
-		return m_threads.size() - 1;
-	}
+    void BenchMark::SetCoreName(unsigned int id, char const* name)
+    {
+        m_coreNames[id] = name;
+    }
 
-	Thread* BenchMark::GetThread(ThreadId id) const
-	{
-		return m_threads[id];
-	}
+    char const* BenchMark::GetCoreName(unsigned int id) const
+    {
+        return m_coreNames[id].c_str();
+    }
 
-	ThreadVector const& BenchMark::GetThreadVector() const
-	{
-		return m_threads;
-	}
+    ThreadId BenchMark::AddThread(char const* name, int coreId)
+    {
+        Thread* thread = new Thread(name, coreId);
+        m_threads.push_back(thread);
+        return m_threads.size() - 1;
+    }
 
-	void BenchMark::Finalize()
-	{
-		for (ThreadVector::iterator it = m_threads.begin(); it != m_threads.end(); ++it)
-		{
-			Thread* thread = *it;
-			thread->Finalize();
-		}
-	}
+    Thread* BenchMark::GetThread(ThreadId id) const
+    {
+        return m_threads[id];
+    }
 
-	void BenchMark::Clear()
-	{
-		for (ThreadVector::iterator it = m_threads.begin(); it != m_threads.end(); ++it)
-		{
-			Thread* thread = *it;
-			thread->Clear();
-			delete thread;
-		}
+    ThreadVector const& BenchMark::GetThreadVector() const
+    {
+        return m_threads;
+    }
 
-		m_threads.clear();
-	}
+    void BenchMark::Finalize()
+    {
+        for (ThreadVector::iterator it = m_threads.begin(); it != m_threads.end(); ++it)
+        {
+            Thread* thread = *it;
+            thread->Finalize();
+        }
+    }
+
+    void BenchMark::Clear()
+    {
+        for (ThreadVector::iterator it = m_threads.begin(); it != m_threads.end(); ++it)
+        {
+            Thread* thread = *it;
+            thread->Clear();
+            delete thread;
+        }
+
+        m_threads.clear();
+    }
 }
