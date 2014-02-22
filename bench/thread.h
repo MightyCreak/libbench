@@ -21,31 +21,47 @@
 #define BENCH_THREAD_H
 
 #include <vector>
-#include "benchlist.h"
+#include <unordered_map>
 
 namespace bench
 {
     class Thread
     {
-        friend class XmlWriter;
-        friend class XmlReader;
-
     public:
-        Thread(char const* name, int coreId);
+        friend class Manager;
+
+        Thread(char const* name);
         ~Thread();
 
         char const* GetName() const;
-        int GetCoreId() const;
-        BenchList const& GetBenchList() const;
-        void StartBench(char const* benchName);
+        char const* GetBenchName(uint32_t id) const;
+        void StartBench(char const* name);
         void StopBench();
         void Finalize();
         void Clear();
 
     private:
+        struct Bench
+        {
+            uint32_t m_nameId;
+            int m_parent;
+            timespec m_start;
+            timespec m_stop;
+        };
+
+        typedef std::vector<Bench> BenchVector;
+        typedef std::unordered_map<uint32_t, char *> StringMap;
+
+    private:
+        Bench& AddBench(char const* name);
+
+    private:
+        static int const kNoParent;
+
         char* m_name;
-        int m_coreId;
-        BenchList m_benchList;
+        BenchVector m_benches;
+        StringMap m_benchNames;
+        int m_curNode;
     };
 }
 

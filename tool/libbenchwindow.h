@@ -25,7 +25,7 @@
 #include <gtkmm/uimanager.h>
 #include <gtkmm/actiongroup.h>
 #include "benchmarkarea.h"
-#include "bench/benchmark.h"
+#include "bench/xmlcommon.h"
 
 class LibBenchGtk : public Gtk::Window
 {
@@ -50,7 +50,7 @@ private:
     Glib::RefPtr<Gtk::UIManager> m_refUIManager;
     Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
-    bench::BenchMark m_benchmark;
+    bench::Document m_document;
 };
 
 #endif // TOOL_LIBBENCHWINDOW_H

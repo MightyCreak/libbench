@@ -17,44 +17,44 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "bench.h"
-#include "manager.h"
-#include "config.h"
+#include "core.h"
+#include "thread.h"
+
+namespace
+{
+    void GetThreadName(pthread_t threadId, char * name, size_t maxsize)
+    {
+        pthread_getname_np(threadId, name, maxsize);
+    }
+}
 
 namespace bench
 {
-    char const* GetVersionString()
+    Core::~Core()
     {
-        return BENCH_VERSION;
+        for(Thread* thread : m_threads)
+        {
+            delete thread;
+        }
+        m_threads.clear();
     }
 
-    void Initialize()
+    void Core::SetName(char const* name)
     {
-        Manager::CreateInstance();
+        m_name = name;
     }
 
-    void Shutdown()
+    char const* Core::GetName() const
     {
-        Manager::DestroyInstance();
+        return m_name.c_str();
     }
 
-    void SetCoreName(unsigned int core, char const* name)
+    Thread* Core::AddThread(pthread_t threadId)
     {
-        Manager::GetInstance()->SetCoreName(core, name);
-    }
-
-    void StartBench(char const* name)
-    {
-        Manager::GetInstance()->StartBench(name);
-    }
-
-    void StopBench()
-    {
-        Manager::GetInstance()->StopBench();
-    }
-
-    void WriteToXml(std::ostream& stream)
-    {
-        Manager::GetInstance()->Write(stream);
+        char name[500];
+        GetThreadName(threadId, name, 500);
+        Thread* thread = new Thread(name);
+        m_threads.push_back(thread);
+        return thread;
     }
 }

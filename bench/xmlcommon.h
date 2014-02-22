@@ -20,20 +20,20 @@
 #ifndef BENCH_XMLCOMMON_H
 #define BENCH_XMLCOMMON_H
 
+#include <glibmm/ustring.h>
+#include <vector>
+
 namespace bench
 {
     // Tags.
     static Glib::ustring const kXmlTagBenchmark("benchmark");
+    static Glib::ustring const kXmlTagCore("core");
     static Glib::ustring const kXmlTagThread("thread");
     static Glib::ustring const kXmlTagBench("bench");
-    static Glib::ustring const kXmlTagCores("cores");
-    static Glib::ustring const kXmlTagCore("core");
 
     // Attributes.
     static Glib::ustring const kXmlAttrVersion("version");
     static Glib::ustring const kXmlAttrName("name");
-    static Glib::ustring const kXmlAttrId("id");
-    static Glib::ustring const kXmlAttrCore("core");
     static Glib::ustring const kXmlAttrStart("start");
     static Glib::ustring const kXmlAttrStop("stop");
     static Glib::ustring const kXmlAttrDuration("duration");
@@ -42,7 +42,36 @@ namespace bench
     static Glib::ustring const kXmlDataVersion("0.1");
     static Glib::ustring const kXmlDataSecond("s");
     static Glib::ustring const kXmlDataMiliSecond("ms");
-    static Glib::ustring const kXmlDataNanoSecond("µs");
+    static Glib::ustring const kXmlDataMicroSecond("µs");
+
+    class DocumentBench
+    {
+    public:
+        Glib::ustring m_name;
+        double m_start;
+        double m_stop;
+        std::vector<DocumentBench> m_benches;
+    };
+
+    class DocumentThread
+    {
+    public:
+        Glib::ustring m_name;
+        std::vector<DocumentBench> m_benches;
+    };
+
+    class DocumentCore
+    {
+    public:
+        Glib::ustring m_name;
+        std::vector<DocumentThread> m_threads;
+    };
+
+    class Document
+    {
+    public:
+        std::vector<DocumentCore> m_cores;
+    };
 }
 
 #endif // BENCH_XMLCOMMON_H

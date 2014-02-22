@@ -17,250 +17,102 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <libxml++/parsers/textreader.h>
+#include <libxml++/parsers/domparser.h>
 #include <iostream>
 #include "xmlreader.h"
 #include "xmlcommon.h"
-#include "benchmark.h"
 #include "thread.h"
-
-//namespace
-//{
-//    bool IsEmptySpace(Glib::ustring const& string)
-//    {
-//        Glib::ustring::const_iterator it = string.begin();
-//        while(it != string.end() && isspace(*it))
-//            ++it;
-//        return it == string.end();
-//    }
-//}
 
 namespace bench
 {
-//    struct indent
-//    {
-//        indent(int depth) : m_depth(depth) { };
-//
-//        int m_depth;
-//    };
-//
-//    std::ostream & operator << (std::ostream& o, indent const& in)
-//    {
-//        for(int i = 0; i != in.m_depth; ++i)
-//        {
-//            o << "  ";
-//        }
-//        return o;
-//    }
-
-    void XmlReader::Read(Glib::ustring const& filename, BenchMark& benchmark)
+    void XmlReader::Read(Glib::ustring const& filename, Document& doc)
     {
         std::setlocale(LC_ALL, "C");
 
-        try
+        xmlpp::DomParser domParser(filename);
+        if(domParser)
         {
-            xmlpp::TextReader reader(filename);
-            while(reader.read())
+            xmlpp::Document* domDoc = domParser.get_document();
+            xmlpp::Element* root = domDoc->get_root_node();
+            if(root->get_name() == kXmlTagBenchmark)
             {
-//                std::cout << "--- node (name: " << reader.get_name()
-//                          << ", type: " << reader.get_node_type() << ") ---"
-//                          << std::endl;
-
-                Glib::ustring tagName = reader.get_name();
-                if(tagName == kXmlTagCores)
+                xmlpp::Node::NodeList coreNodeList = root->get_children(kXmlTagCore);
+                if(coreNodeList.size() > 0)
                 {
-                    ReadCores(reader, benchmark);
-                }
-                else if(tagName == kXmlTagThread)
-                {
-                    ReadThread(reader, benchmark);
-                }
-            }
-        }
-        catch(std::exception const& e)
-        {
-            std::cerr << "Exception caught: " << e.what() << std::endl;
-        }
-
-//        std::locale::global(std::locale(""));
-
-//        try
-//        {
-//            xmlpp::TextReader reader(filename);
-//            while(reader.read())
-//            {
-//                Glib::ustring value;
-//                if(reader.has_value())
-//                {
-//                    value = reader.get_value();
-//                    if(IsEmptySpace(value))
-//                        continue;
-//                }
-
-//                int depth = reader.get_depth();
-//                std::cout << indent(depth) << "--- node ---" << std::endl;
-//                std::cout << indent(depth) << "name: " << reader.get_name() << std::endl;
-//                std::cout << indent(depth) << "depth: " << depth << std::endl;
-
-//                if(reader.has_attributes())
-//                {
-//                    std::cout << indent(depth) << "attributes: " << std::endl;
-//                    reader.move_to_first_attribute();
-//                    do
-//                    {
-//                        std::cout << indent(depth) << "  " << reader.get_name() << ": " << reader.get_value() << std::endl;
-//                    } while(reader.move_to_next_attribute());
-//                    reader.move_to_element();
-//                }
-//                else
-//                {
-//                    std::cout << indent(depth) << "no attributes" << std::endl;
-//                }
-
-//                if(reader.has_value())
-//                    std::cout << indent(depth) << "value: '" << value << "'" << std::endl;
-//                else
-//                    std::cout << indent(depth) << "novalue" << std::endl;
-//            }
-//        }
-//        catch(std::exception const& e)
-//        {
-//            std::cerr << "Exception caught: " << e.what() << std::endl;
-//        }
-    }
-
-    void XmlReader::ReadCores(xmlpp::TextReader& reader, BenchMark& benchmark)
-    {
-        std::vector<unsigned int> coreIds;
-        std::vector<Glib::ustring> coreNames;
-        int coresDepth = reader.get_depth();
-        while(reader.read())
-        {
-            Glib::ustring tagName = reader.get_name();
-            if(tagName == kXmlTagCores && reader.get_depth() == coresDepth)
-                break;
-            if(tagName == kXmlTagCore && reader.get_depth() == coresDepth + 1)
-            {
-                int res = 0;
-                unsigned int coreId;
-                Glib::ustring coreName;
-
-                reader.move_to_first_attribute();
-                do
-                {
-                    Glib::ustring attrName = reader.get_name();
-                    if(reader.get_name() == kXmlAttrId)
+                    doc.m_cores.reserve(coreNodeList.size());
+                    for(xmlpp::Node* coreNode : coreNodeList)
                     {
-                        ++res;
-                        sscanf(reader.get_value().c_str(), "%d", &coreId);
+                        doc.m_cores.push_back(DocumentCore());
+                        DocumentCore& docCore = doc.m_cores.back();
+                        ReadCore(coreNode, docCore);
                     }
-                    else if(reader.get_name() == kXmlAttrName)
-                    {
-                        ++res;
-                        coreName = reader.get_value();
-                    }
-                } while(reader.move_to_next_attribute());
-                reader.move_to_element();
-
-                if(res == 2)
-                {
-                    benchmark.SetCoreName(coreId, coreName.c_str());
                 }
             }
         }
     }
 
-    void XmlReader::ReadThread(xmlpp::TextReader& reader, BenchMark& benchmark)
+    void XmlReader::ReadCore(xmlpp::Node* coreNode, DocumentCore& docCore)
     {
-        int res = 0;
-        int coreId = 0;
-        Glib::ustring threadName;
-        if(reader.has_attributes())
+        xmlpp::Element* coreElt = dynamic_cast<xmlpp::Element*>(coreNode);
+        docCore.m_name = coreElt->get_attribute_value(kXmlAttrName);
+
+        xmlpp::Node::NodeList threadNodeList = coreNode->get_children(kXmlTagThread);
+        if(threadNodeList.size() > 0)
         {
-            reader.move_to_first_attribute();
-            do
+            docCore.m_threads.reserve(threadNodeList.size());
+            for(xmlpp::Node* threadNode : threadNodeList)
             {
-                Glib::ustring attrName = reader.get_name();
-                if(attrName == kXmlAttrName)
-                {
-                    ++res;
-                    threadName = reader.get_value();
-                }
-                else if(attrName == kXmlAttrCore)
-                {
-                    Glib::ustring const& attrValue = reader.get_value();
-                    sscanf(attrValue.c_str(), "%d", &coreId);
-                }
-            } while(reader.move_to_next_attribute());
-            reader.move_to_element();
-        }
-
-        if(res == 0)
-            return;
-
-        ThreadId threadId = benchmark.AddThread(threadName.c_str(), coreId);
-        if(threadId == kInvalidThread)
-            return;
-
-        Thread* thread = benchmark.GetThread(threadId);
-        ReadBenchList(reader, thread->m_benchList);
-    }
-
-    void XmlReader::ReadBenchList(xmlpp::TextReader& reader, BenchList& benchList)
-    {
-        int threadDepth = reader.get_depth();
-        int lastDepth = threadDepth + 1;
-        while(reader.read())
-        {
-            Glib::ustring tagName = reader.get_name();
-            if(tagName == kXmlTagThread && reader.get_depth() == threadDepth)
-                break;
-
-            if(tagName == kXmlTagBench)
-            {
-//                if(reader.get_node_type() == xmlpp::TextReader::EndElement)
-//                {
-//                    benchList.m_curNode = benchList.m_benches.back().m_parent;
-//                }
-                if(reader.get_depth() < lastDepth)
-                {
-                    benchList.m_curNode = benchList.m_benches[benchList.m_curNode].m_parent;
-                }
-                else
-                {
-                    if(reader.get_depth() > lastDepth)
-                        benchList.m_curNode = benchList.m_benches.size() - 1;
-                    ReadBench(reader, benchList);
-                }
-
-                lastDepth = reader.get_depth();
+                docCore.m_threads.push_back(DocumentThread());
+                DocumentThread& docThread = docCore.m_threads.back();
+                ReadThread(threadNode, docThread);
             }
         }
     }
 
-    void XmlReader::ReadBench(xmlpp::TextReader& reader, BenchList& benchList)
+    void XmlReader::ReadThread(xmlpp::Node* threadNode, DocumentThread& docThread)
     {
-        if(reader.has_attributes())
+        xmlpp::Element* threadElt = dynamic_cast<xmlpp::Element*>(threadNode);
+        docThread.m_name = threadElt->get_attribute_value(kXmlAttrName);
+
+        xmlpp::Node::NodeList benchNodeList = threadNode->get_children(kXmlTagBench);
+        if(benchNodeList.size() > 0)
         {
-            Glib::ustring benchName;
-            Glib::ustring benchStartTime;
-            Glib::ustring benchStopTime;
-
-            reader.move_to_first_attribute();
-            do
+            docThread.m_benches.reserve(benchNodeList.size());
+            for(xmlpp::Node* benchNode : benchNodeList)
             {
-                if(reader.get_name() == kXmlAttrName)
-                    benchName = reader.get_value();
-                else if(reader.get_name() == kXmlAttrStart)
-                    benchStartTime = reader.get_value();
-                else if(reader.get_name() == kXmlAttrStop)
-                    benchStopTime = reader.get_value();
-            } while(reader.move_to_next_attribute());
-            reader.move_to_element();
+                docThread.m_benches.push_back(DocumentBench());
+                DocumentBench& docBench = docThread.m_benches.back();
+                ReadBench(benchNode, docBench);
+            }
+        }
+    }
 
-            Bench& bench = benchList.AddBench(benchName.c_str());
-            sscanf(benchStartTime.c_str(), "%ld.%ld", &bench.m_start.tv_sec, &bench.m_start.tv_nsec);
-            sscanf(benchStopTime.c_str(), "%ld.%ld", &bench.m_stop.tv_sec, &bench.m_stop.tv_nsec);
+    void XmlReader::ReadBench(xmlpp::Node* benchNode, DocumentBench& docBench)
+    {
+        xmlpp::Element* benchElt = dynamic_cast<xmlpp::Element*>(benchNode);
+        xmlpp::Attribute* nameAttr = benchElt->get_attribute(kXmlAttrName);
+        xmlpp::Attribute* startAttr = benchElt->get_attribute(kXmlAttrStart);
+        xmlpp::Attribute* stopAttr = benchElt->get_attribute(kXmlAttrStop);
+        if(nameAttr && startAttr && stopAttr)
+        {
+            docBench.m_name = nameAttr->get_value();
+
+            Glib::ustring benchStartTime = startAttr->get_value();
+            Glib::ustring benchStopTime = stopAttr->get_value();
+            sscanf(benchStartTime.c_str(), "%lf", &docBench.m_start);
+            sscanf(benchStopTime.c_str(), "%lf", &docBench.m_stop);
+        }
+
+        xmlpp::Node::NodeList benchNodeList = benchNode->get_children(kXmlTagBench);
+        if(benchNodeList.size() > 0)
+        {
+            docBench.m_benches.reserve(benchNodeList.size());
+            for(xmlpp::Node* benchNode : benchNodeList)
+            {
+                docBench.m_benches.push_back(DocumentBench());
+                DocumentBench& docChildBench = docBench.m_benches.back();
+                ReadBench(benchNode, docChildBench);
+            }
         }
     }
 }

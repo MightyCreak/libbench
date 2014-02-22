@@ -21,20 +21,19 @@
 #include <assert.h>
 #include <pthread.h>
 #include <sched.h>
+#include <thread>
+#include <queue>
 #include "manager.h"
+#include "core.h"
 #include "thread.h"
 #include "xmlwriter.h"
+#include "xmlcommon.h"
 
 namespace
 {
     pthread_t GetThreadId()
     {
         return pthread_self();
-    }
-
-    void GetThreadName(pthread_t thread, char * name, size_t maxsize)
-    {
-        pthread_getname_np(thread, name, maxsize);
     }
 }
 
@@ -63,72 +62,177 @@ namespace bench
     Manager::Manager()
     {
         pthread_mutex_init(&m_mutex, nullptr);
+
+        unsigned int numCores = std::thread::hardware_concurrency();
+        m_cores.reserve(numCores);
+        for(unsigned int u = 0; u < numCores; ++u)
+        {
+            Core* core = new Core;
+            assert(core);
+            char coreName[30];
+            sprintf(coreName, "Core #%d", u + 1);
+            core->SetName(coreName);
+            m_cores.push_back(core);
+        }
     }
 
     Manager::~Manager()
     {
+        for(Core* core : m_cores)
+        {
+            delete core;
+        }
+        m_cores.clear();
+
         pthread_mutex_destroy(&m_mutex);
     }
 
-    void Manager::StartBench(char const * benchName)
+    void Manager::SetCoreName(unsigned int core, char const* name)
     {
+        assert(core < m_cores.size());
+        m_cores[core]->SetName(name);
+    }
+
+    void Manager::StartBench(char const * name)
+    {
+        // Get or register current thread.
         pthread_mutex_lock(&m_mutex);
         pthread_t pthrd = GetThreadId();
-        ThreadIdMap::iterator it = m_threadIds.find(pthrd);
-        ThreadId threadId;
-        if(it == m_threadIds.end())
+        IdThreadMap::iterator it = m_threads.find(pthrd);
+        Thread* thread;
+        if(it != m_threads.end())
         {
-            threadId = RegisterThread(pthrd);
+            thread = it->second;
         }
         else
         {
-            threadId = it->second;
+            thread = RegisterThread(pthrd);
         }
         pthread_mutex_unlock(&m_mutex);
 
-        Thread* thread = m_benchmark.GetThread(threadId);
-        thread->StartBench(benchName);
+        // Start bench.
+        thread->StartBench(name);
     }
 
     void Manager::StopBench()
     {
+        // Get current thread.
         pthread_mutex_lock(&m_mutex);
         pthread_t pthrd = GetThreadId();
-        ThreadIdMap::iterator it = m_threadIds.find(pthrd);
-        assert(it != m_threadIds.end());
-        Thread* thread = m_benchmark.GetThread(it->second);
+        IdThreadMap::iterator it = m_threads.find(pthrd);
+        assert(it != m_threads.end());
+        Thread* thread = it->second;
         pthread_mutex_unlock(&m_mutex);
+
+        // Stop bench.
         thread->StopBench();
     }
 
     void Manager::Finalize()
     {
         pthread_mutex_lock(&m_mutex);
-        m_benchmark.Finalize();
+        //m_benchmark.Finalize();
         pthread_mutex_unlock(&m_mutex);
     }
 
     void Manager::Clear()
     {
         pthread_mutex_lock(&m_mutex);
-        m_benchmark.Clear();
+        for(Core* core : m_cores)
+        {
+            delete core;
+        }
+        m_cores.clear();
+        m_threads.clear();
         pthread_mutex_unlock(&m_mutex);
     }
 
     void Manager::Write(std::ostream & stream) const
     {
-        XmlWriter xmlWriter(stream);
         pthread_mutex_lock(&m_mutex);
-        xmlWriter.Write(m_benchmark);
+
+        // Find min start time.
+        bool first = true;
+        __time_t starttime = 0;
+        for(Core const* core : m_cores)
+        {
+            for(Thread const* thread : core->m_threads)
+            {
+                for(Thread::Bench const& bench : thread->m_benches)
+                {
+                    if(first)
+                    {
+                        starttime = bench.m_start.tv_sec;
+                        first = false;
+                    }
+                    else
+                    {
+                        starttime = std::min(starttime, bench.m_start.tv_sec);
+                    }
+                }
+            }
+        }
+
+        Document doc;
+        doc.m_cores.reserve(m_cores.size());
+        for(Core const* core : m_cores)
+        {
+            doc.m_cores.push_back(DocumentCore());
+            DocumentCore& docCore = doc.m_cores.back();
+            docCore.m_name = core->GetName();
+
+            docCore.m_threads.reserve(core->m_threads.size());
+            for(Thread const* thread : core->m_threads)
+            {
+                docCore.m_threads.push_back(DocumentThread());
+                DocumentThread& docThread = docCore.m_threads.back();
+                docThread.m_name = thread->GetName();
+
+                ConvertBenchChildren(*thread, Thread::kNoParent, docThread.m_benches, starttime);
+            }
+        }
         pthread_mutex_unlock(&m_mutex);
+
+        XmlWriter xmlWriter(stream);
+        xmlWriter.Write(doc);
     }
 
-    ThreadId Manager::RegisterThread(pthread_t thread)
+    void Manager::ConvertBenchChildren(Thread const& thread,
+                                       int parentIdx,
+                                       std::vector<DocumentBench>& docBenches,
+                                       __time_t starttime) const
     {
-        char name[500];
-        GetThreadName(thread, name, 500);
-        ThreadId threadId = m_benchmark.AddThread(name, sched_getcpu());
-        std::pair<ThreadIdMap::iterator, bool> res = m_threadIds.insert(ThreadIdMap::value_type(thread, threadId));
-        return res.second ? res.first->second : kInvalidThread;
+        docBenches.reserve(500);
+        size_t benchIdx = 0;
+        for(Thread::Bench const& bench : thread.m_benches)
+        {
+            if(bench.m_parent == parentIdx)
+            {
+                docBenches.push_back(DocumentBench());
+                DocumentBench& docBench = docBenches.back();
+
+                // Get name.
+                docBench.m_name = thread.GetBenchName(bench.m_nameId);
+
+                // Get start-stop times.
+                docBench.m_start = (bench.m_start.tv_sec - starttime) + bench.m_start.tv_nsec * 1e-9;
+                docBench.m_stop = (bench.m_stop.tv_sec - starttime) + bench.m_stop.tv_nsec * 1e-9;
+
+                ConvertBenchChildren(thread, benchIdx, docBench.m_benches, starttime);
+            }
+            ++benchIdx;
+        }
+        docBenches.shrink_to_fit();
+    }
+
+    Thread* Manager::RegisterThread(pthread_t threadId)
+    {
+        int coreId = sched_getcpu();
+        assert(coreId >= 0 && static_cast<size_t>(coreId) < m_cores.size());
+        Core* core = m_cores[coreId];
+        Thread* thread = core->AddThread(threadId);
+        assert(thread);
+        m_threads.insert(IdThreadMap::value_type(threadId, thread));
+        return thread;
     }
 }

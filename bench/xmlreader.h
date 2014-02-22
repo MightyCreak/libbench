@@ -27,25 +27,26 @@ namespace Glib
 
 namespace xmlpp
 {
-    class TextReader;
+    class DomParser;
+    class Node;
 }
 
 namespace bench
 {
-    class BenchMark;
-    class Thread;
-    class BenchList;
+    class Document;
+    class DocumentCore;
+    class DocumentThread;
+    class DocumentBench;
 
     class XmlReader
     {
     public:
-        void Read(Glib::ustring const& filename, BenchMark& benchmark);
+        void Read(Glib::ustring const& filename, Document& doc);
 
     private:
-        void ReadCores(xmlpp::TextReader& reader, BenchMark& benchmark);
-        void ReadThread(xmlpp::TextReader& reader, BenchMark& benchmark);
-        void ReadBenchList(xmlpp::TextReader& reader, BenchList& benchList);
-        void ReadBench(xmlpp::TextReader& reader, BenchList& benchList);
+        void ReadCore(xmlpp::Node* coreNode, DocumentCore& docCore);
+        void ReadThread(xmlpp::Node* threadNode, DocumentThread& docThread);
+        void ReadBench(xmlpp::Node* benchNode, DocumentBench& docBench);
     };
 }
 

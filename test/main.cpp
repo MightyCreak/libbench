@@ -30,6 +30,7 @@
 #include <glibmm/ustring.h>
 #include "bench/bench.h"
 #include "bench/helpers.h"
+#include "bench/xmlcommon.h"
 #include "bench/xmlreader.h"
 #include "bench/xmlwriter.h"
 
@@ -37,13 +38,13 @@ void * my_thread_process1(void * arg)
 {
     pthread_setname_np(pthread_self(), "process1");
 
-    LIBBENCH_SCOPED_PROFILE(my_thread_process2);
+    BENCH_SCOPED_PROFILE(my_thread_process1);
     for (int i = 0; i < 5; ++i)
     {
-        LIBBENCH_SCOPED_PROFILE(my_second_bench);
+        BENCH_SCOPED_PROFILE(my_second_bench);
         for (int j = 0; j < 1000000; ++j)
         {
-            LIBBENCH_SCOPED_PROFILE(useless);
+            BENCH_SCOPED_PROFILE(useless);
             j += 1;
             j -= 1;
         }
@@ -58,10 +59,10 @@ void * my_thread_process2(void * arg)
 {
     pthread_setname_np(pthread_self(), "process2");
 
-    LIBBENCH_SCOPED_PROFILE(my_thread_process1);
+    BENCH_SCOPED_PROFILE(my_thread_process2);
     for (int i = 0; i < 5; ++i)
     {
-        LIBBENCH_SCOPED_PROFILE(my_second_bench);
+        BENCH_SCOPED_PROFILE(my_second_bench);
         for (int j = 0; j < 1000000; ++j)
         {
             j += 1;
@@ -78,10 +79,10 @@ void * my_thread_process3(void * arg)
 {
     pthread_setname_np(pthread_self(), "process3");
 
-    LIBBENCH_SCOPED_PROFILE(my_thread_process3);
+    BENCH_SCOPED_PROFILE(my_thread_process3);
     for (int i = 0; i < 10000; ++i)
     {
-        LIBBENCH_SCOPED_PROFILE(useless);
+        BENCH_SCOPED_PROFILE(useless);
         i += 1;
         i -= 1;
     }
@@ -150,13 +151,16 @@ int main(int argc, char ** argv)
         pthread_join(thr[u], &ret);
     }
 
-    bench::Finalize();
     if(argc > 1)
     {
         std::ofstream filestream(argv[1], std::ofstream::out);
         if(!filestream)
             return EXIT_FAILURE;
-        bench::Write(filestream);
+        bench::WriteToXml(filestream);
+
+        bench::XmlReader xmlReader;
+        bench::Document doc;
+        xmlReader.Read(Glib::ustring(argv[1]), doc);
 
 //        libbench::XmlReader xmlReader;
 //        libbench::BenchMark readBenchmark;
@@ -168,7 +172,7 @@ int main(int argc, char ** argv)
     }
     else
     {
-        bench::Write(std::cout);
+        bench::WriteToXml(std::cout);
     }
 
     bench::Shutdown();

@@ -21,14 +21,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <boost/crc.hpp>
 #include "thread.h"
+
+namespace
+{
+    void GetTime(timespec &tsp)
+    {
+        clock_gettime(CLOCK_REALTIME, &tsp);
+    }
+}
 
 namespace bench
 {
-    Thread::Thread(char const* name, int coreId)
+    int const Thread::kNoParent = -1;
+
+    Thread::Thread(char const* name)
         : m_name(strdup(name))
-        , m_coreId(coreId)
+        , m_curNode(kNoParent)
     {
+        m_benches.reserve(100000);
     }
 
     Thread::~Thread()
@@ -45,33 +58,61 @@ namespace bench
         return m_name;
     }
 
-    int Thread::GetCoreId() const
+    char const* Thread::GetBenchName(uint32_t id) const
     {
-        return m_coreId;
+        StringMap::const_iterator it = m_benchNames.find(id);
+        return it != m_benchNames.end() ? it->second : nullptr;
     }
 
-    BenchList const& Thread::GetBenchList() const
+    void Thread::StartBench(char const* name)
     {
-        return m_benchList;
-    }
-
-    void Thread::StartBench(char const* benchName)
-    {
-        m_benchList.StartBench(benchName);
+        Bench& bench = AddBench(name);
+        GetTime(bench.m_start);
+        bench.m_stop = bench.m_start;
+        m_curNode = m_benches.size() - 1;
     }
 
     void Thread::StopBench()
     {
-        m_benchList.StopBench();
+        assert(m_curNode != Thread::kNoParent);
+        Bench & bench = m_benches[m_curNode];
+        GetTime(bench.m_stop);
+        m_curNode = bench.m_parent;
+        if(bench.m_stop.tv_sec == bench.m_start.tv_sec &&
+                bench.m_stop.tv_nsec - bench.m_start.tv_nsec < 1000)
+        {
+            if((size_t) (m_curNode + 1) < m_benches.size())
+                bench = m_benches.back();
+            m_benches.pop_back();
+        }
     }
 
     void Thread::Finalize()
     {
-        m_benchList.Finalize();
+        //m_benchList.Finalize();
     }
 
     void Thread::Clear()
     {
-        m_benchList.Clear();
+        //m_benchList.Clear();
+    }
+
+    Thread::Bench& Thread::AddBench(char const * name)
+    {
+        boost::crc_32_type crc;
+        crc.process_bytes(name, strlen(name));
+        uint32_t id = crc.checksum();
+
+        StringMap::const_iterator it = m_benchNames.find(id);
+        if(it == m_benchNames.end())
+        {
+            m_benchNames.insert(std::pair<uint32_t, char *>(id, strdup(name)));
+        }
+
+        m_benches.push_back(Bench());
+        Bench & bench = m_benches.back();
+        bench.m_parent = m_curNode;
+        bench.m_nameId = id;
+        return bench;
     }
 }

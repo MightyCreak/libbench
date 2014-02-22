@@ -124,7 +124,7 @@ void LibBenchGtk::OnMenuFileOpen()
 
 void LibBenchGtk::OnMenuFileClose()
 {
-    m_benchmark.Clear();
+//    m_benchmark.Clear();
     m_area.SetBenchMark(nullptr);
     m_area.get_window()->invalidate(true);
 }
@@ -153,11 +153,11 @@ void LibBenchGtk::OnMenuHelpAbout()
 
 void LibBenchGtk::OpenFile(std::string const& filename)
 {
-    m_benchmark.Clear();
+//    m_document.Clear();
 
     bench::XmlReader xmlReader;
-    xmlReader.Read(filename.c_str(), m_benchmark);
+    xmlReader.Read(filename.c_str(), m_document);
 
-    m_area.SetBenchMark(&m_benchmark);
+    m_area.SetBenchMark(&m_document);
     m_area.get_window()->invalidate(true);
 }

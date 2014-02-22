@@ -7,22 +7,20 @@ set(libbench_VERSION_MINOR 1)
 
 # Add the library.
 add_library(bench SHARED
-    benchlist.h
-    benchlist.cpp
-    benchmark.h
-    benchmark.cpp
-    bench.h
     bench.cpp
+    bench.h
+    core.cpp
+    core.h
     helpers.h
-    manager.h
     manager.cpp
-    thread.h
+    manager.h
     thread.cpp
+    thread.h
     xmlcommon.h
-    xmlreader.h
     xmlreader.cpp
-    xmlwriter.h
-    xmlwriter.cpp)
+    xmlreader.h
+    xmlwriter.cpp
+    xmlwriter.h)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code.

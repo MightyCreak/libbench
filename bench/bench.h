@@ -21,7 +21,6 @@
 #define BENCH_BENCH_H
 
 #include <ostream>
-#include "benchmark.h"
 
 extern "C"
 {
@@ -38,18 +37,20 @@ namespace bench
     /// Shutdown the library.
     void Shutdown();
 
+    /// Set the name of a core.
+    /// @param core Core index.
+    /// @param name New name of the core.
+    void SetCoreName(unsigned int core, char const* name);
+
     /// Start a new bench.
-    /// @param name name of the bench.
+    /// @param name Name of the bench.
     void StartBench(char const* name);
 
     /// Stop the current bench.
     void StopBench();
 
-    /// Finalize the profiling.
-    void Finalize();
-
     /// Write the profiling in an XML file.
-    void Write(std::ostream& stream);
+    void WriteToXml(std::ostream& stream);
 }
 
 }

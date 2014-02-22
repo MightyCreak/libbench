@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <cairomm/context.h>
 #include "benchmarkarea.h"
-#include "bench/benchmark.h"
 #include "bench/thread.h"
 
 namespace
@@ -32,7 +31,7 @@ namespace
 }
 
 BenchMarkArea::BenchMarkArea()
-    : m_benchmark(nullptr)
+    : m_document(nullptr)
     , m_timeToPx(500.0) // 5ms -> 1px
 {
     // http://developer.gnome.org/pangomm/unstable/classPango_1_1FontDescription.html
@@ -57,65 +56,41 @@ BenchMarkArea::BenchMarkArea()
     m_threadLayout->set_font_description(threadFont);
 
     add_events(Gdk::SCROLL_MASK);
+
+    std::cout << "init" << std::endl;
 }
 
-void BenchMarkArea::SetBenchMark(bench::BenchMark const* benchmark)
+void BenchMarkArea::SetBenchMark(bench::Document const* document)
 {
+    std::cout << "bench" << std::endl;
+
     m_drawCores.clear();
-    m_benchmark = benchmark;
-    if(!m_benchmark)
+    m_document = document;
+    if(!m_document)
         return;
 
-    // Get minimum start time.
-    double globalMinTime = std::numeric_limits<double>::max();
-    bench::ThreadVector const& threads = m_benchmark->GetThreadVector();
-    for(bench::ThreadVector::const_iterator tit = threads.begin(); tit != threads.end(); ++tit)
-    {
-        bench::Thread const* thread = *tit;
-        bench::BenchList const& benchList = thread->GetBenchList();
-        bench::BenchVector const& benches = benchList.GetBenches();
-        for(bench::BenchVector::const_iterator bit = benches.begin(); bit != benches.end(); ++bit)
-        {
-            bench::Bench const& bench = *bit;
-            globalMinTime = std::min(globalMinTime, bench.m_start.tv_sec + bench.m_start.tv_nsec * 1e-9);
-        }
-    }
-
     // Fill bench lists.
-    unsigned int numCores = m_benchmark->GetNumberOfCores();
-    m_drawCores.resize(numCores);
-    for(int u = 0; u < static_cast<int>(numCores); ++u)
+    m_drawCores.reserve(m_document->m_cores.size());
+    for(bench::DocumentCore const& docCore : m_document->m_cores)
     {
-        DrawCore& drawCore = m_drawCores[u];
-        drawCore.m_name = m_benchmark->GetCoreName(u);
+        std::cout << "core" << std::endl;
 
-        std::vector<bench::Thread const*> coreThreads;
-        coreThreads.reserve(threads.size());
-        for(bench::ThreadVector::const_iterator tit = threads.begin(); tit != threads.end(); ++tit)
-        {
-            bench::Thread const* thread = *tit;
-            if(thread->GetCoreId() == u)
-                coreThreads.push_back(thread);
-        }
-        
-        for(std::vector<bench::Thread const*>::const_iterator tit = coreThreads.begin(); tit != coreThreads.end(); ++tit)
-        {
-            bench::Thread const* thread = *tit;
+        m_drawCores.push_back(DrawCore());
+        DrawCore& drawCore = m_drawCores.back();
+        drawCore.m_name = docCore.m_name;
 
-            bench::BenchList const& benchList = thread->GetBenchList();
-            bench::BenchVector const& benches = benchList.GetBenches();
-            for(bench::BenchVector::const_iterator bit = benches.begin(); bit != benches.end(); ++bit)
+        for(bench::DocumentThread const& docThread : docCore.m_threads)
+        {
+            std::cout << "thread" << std::endl;
+
+            for(bench::DocumentBench const& docBench : docThread.m_benches)
             {
-                bench::Bench const& bench = *bit;
-                if(bench.m_parent != -1)
-                    continue;
-
-                DrawBench drawBench;
+                drawCore.m_benches.push_back(DrawBench());
+                DrawBench& drawBench = drawCore.m_benches.back();
                 drawBench.m_parent = nullptr;
-                drawBench.m_startTime = (bench.m_start.tv_sec + bench.m_start.tv_nsec * 1e-9) - globalMinTime;
-                drawBench.m_stopTime = (bench.m_stop.tv_sec + bench.m_stop.tv_nsec * 1e-9) - globalMinTime;
-                drawBench.m_name = benchList.GetBenchName(bench.m_nameId);
-                drawCore.m_benches.push_back(drawBench);
+                drawBench.m_name = docBench.m_name;
+                drawBench.m_startTime = docBench.m_start;
+                drawBench.m_stopTime = docBench.m_stop;
             }
         }
     }
@@ -123,7 +98,7 @@ void BenchMarkArea::SetBenchMark(bench::BenchMark const* benchmark)
 
 bool BenchMarkArea::on_draw(Cairo::RefPtr<Cairo::Context> const& cr)
 {
-    if(!m_benchmark)
+    if(!m_document)
         return false;
 
     cr->save();

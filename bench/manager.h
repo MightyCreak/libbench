@@ -20,24 +20,30 @@
 #ifndef BENCH_MANAGER_H
 #define BENCH_MANAGER_H
 
+#include <vector>
 #include <map>
 #include <ostream>
-#include "benchmark.h"
+#include "xmlcommon.h"
 
 namespace bench
 {
-    typedef std::map<pthread_t, ThreadId> ThreadIdMap;
+    class Core;
+    class Thread;
 
     class Manager
     {
     public:
+        friend class XmlWriter;
+        friend class XmlReader;
+
         static void CreateInstance();
         static void DestroyInstance();
         static Manager* GetInstance();
 
         ~Manager();
 
-        void StartBench(char const* benchName);
+        void SetCoreName(unsigned int core, char const* name);
+        void StartBench(char const* name);
         void StopBench();
         void Finalize();
         void Clear();
@@ -46,13 +52,20 @@ namespace bench
     private:
         Manager();
 
-        ThreadId RegisterThread(pthread_t thread);
+        void ConvertBenchChildren(Thread const& thread,
+                                  int parentIdx,
+                                  std::vector<DocumentBench>& docBenches,
+                                  __time_t starttime) const;
+        Thread* RegisterThread(pthread_t thread);
 
     private:
         static Manager* ms_instance;
 
-        BenchMark m_benchmark;
-        ThreadIdMap m_threadIds;
+        typedef std::vector<Core*> CoreVector;
+        typedef std::map<pthread_t, Thread*> IdThreadMap;
+
+        CoreVector m_cores;
+        IdThreadMap m_threads;
         mutable pthread_mutex_t m_mutex;
     };
 }

@@ -21,6 +21,7 @@
 #define TOOL_BENCHMARKAREA_H
 
 #include <gtkmm/drawingarea.h>
+#include "bench/xmlcommon.h"
 
 namespace bench
 {
@@ -32,7 +33,7 @@ class BenchMarkArea : public Gtk::DrawingArea
 public:
     BenchMarkArea();
 
-    void SetBenchMark(bench::BenchMark const* benchmark);
+    void SetBenchMark(bench::Document const* document);
 
 protected:
     // Override default signal handler.
@@ -67,7 +68,7 @@ private:
 
 private:
     std::vector<DrawCore> m_drawCores;
-    bench::BenchMark const* m_benchmark;
+    bench::Document const* m_document;
 
     double m_timeToPx;
     Glib::RefPtr<Pango::Layout> m_coreLayout;

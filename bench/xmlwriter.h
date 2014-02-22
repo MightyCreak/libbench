@@ -21,7 +21,6 @@
 #define BENCH_XMLWRITER_H
 
 #include <ostream>
-#include <time.h>
 
 namespace xmlpp
 {
@@ -30,27 +29,26 @@ namespace xmlpp
 
 namespace bench
 {
-    class BenchMark;
-    class Thread;
-    class BenchList;
-    struct Bench;
+    class Document;
+    class DocumentCore;
+    class DocumentThread;
+    class DocumentBench;
 
     class XmlWriter
     {
     public:
         XmlWriter(std::ostream& stream);
 
-        void Write(BenchMark const& value);
+        void Write(Document const& doc);
 
     private:
-        void WriteCores(xmlpp::Element* element, BenchMark const& benchmark);
-        void WriteThread(xmlpp::Element* element, Thread const& thread);
-        void WriteBenchList(xmlpp::Element* element, BenchList const& benchList);
-        void WriteBenchRec(xmlpp::Element* element, BenchList const& benchList, Bench const& bench);
+        void WriteCore(xmlpp::Element* element, DocumentCore const& docCore);
+        void WriteThread(xmlpp::Element* element, DocumentThread const& docThread);
+        void WriteBench(xmlpp::Element* element, DocumentBench const& docBench);
 
     private:
         std::ostream& m_stream;
-        __time_t m_starttime;
+        double m_starttime;
     };
 }
 
