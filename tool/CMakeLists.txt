@@ -32,9 +32,8 @@ if (GTKMM_FOUND)
 endif (GTKMM_FOUND)
 
 # Add "tags" target and make my_project depending on this target.
-set_source_files_properties(tags PROPERTIES GENERATED true)
-add_custom_target(tags
-    COMMAND ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-add_dependencies(libbench_gtk tags)
-
+#set_source_files_properties(tags PROPERTIES GENERATED true)
+#add_custom_target(tags
+#    COMMAND ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .
+#    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+#add_dependencies(libbench_gtk tags)
