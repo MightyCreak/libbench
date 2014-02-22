@@ -3,6 +3,12 @@ libbench
 
 The in-code profiler library.
 
+This library is intended to provide profiling thanks to markers set directly
+in the code sources of the application to which it is linked.
+
+It produces an XML file that can be easily read by the viewer distributed
+within this project.
+
 Directory structure
 -------------------
 
