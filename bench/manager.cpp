@@ -22,12 +22,11 @@
 #include <pthread.h>
 #include <sched.h>
 #include <thread>
-#include <queue>
 #include "manager.h"
 #include "core.h"
 #include "thread.h"
-#include "xmlwriter.h"
 #include "xmlcommon.h"
+#include "xmlwriter.h"
 
 namespace
 {
@@ -126,13 +125,6 @@ namespace bench
 
         // Stop bench.
         thread->StopBench();
-    }
-
-    void Manager::Finalize()
-    {
-        pthread_mutex_lock(&m_mutex);
-        //m_benchmark.Finalize();
-        pthread_mutex_unlock(&m_mutex);
     }
 
     void Manager::Clear()

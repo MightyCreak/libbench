@@ -45,7 +45,6 @@ namespace bench
         void SetCoreName(unsigned int core, char const* name);
         void StartBench(char const* name);
         void StopBench();
-        void Finalize();
         void Clear();
         void Write(std::ostream& stream) const;
 
