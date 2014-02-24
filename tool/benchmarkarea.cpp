@@ -56,14 +56,10 @@ BenchMarkArea::BenchMarkArea()
     m_threadLayout->set_font_description(threadFont);
 
     add_events(Gdk::SCROLL_MASK);
-
-    std::cout << "init" << std::endl;
 }
 
 void BenchMarkArea::SetBenchMark(bench::Document const* document)
 {
-    std::cout << "bench" << std::endl;
-
     m_drawCores.clear();
     m_document = document;
     if(!m_document)
@@ -73,16 +69,12 @@ void BenchMarkArea::SetBenchMark(bench::Document const* document)
     m_drawCores.reserve(m_document->m_cores.size());
     for(bench::DocumentCore const& docCore : m_document->m_cores)
     {
-        std::cout << "core" << std::endl;
-
         m_drawCores.push_back(DrawCore());
         DrawCore& drawCore = m_drawCores.back();
         drawCore.m_name = docCore.m_name;
 
         for(bench::DocumentThread const& docThread : docCore.m_threads)
         {
-            std::cout << "thread" << std::endl;
-
             for(bench::DocumentBench const& docBench : docThread.m_benches)
             {
                 drawCore.m_benches.push_back(DrawBench());
