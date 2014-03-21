@@ -96,8 +96,10 @@ LibBenchGtk::LibBenchGtk()
         m_box.pack_start(*pToolbar, Gtk::PACK_SHRINK);
 
     // Add the drawing area.
-    m_area.set_size_request(1000, 600);
-    m_box.pack_start(m_area, Gtk::PACK_EXPAND_WIDGET);
+//    m_area.set_size_request(1000, 1000);
+    m_scrollwnd.set_size_request(800, 600);
+    m_scrollwnd.add(m_area);
+    m_box.pack_start(m_scrollwnd, Gtk::PACK_EXPAND_WIDGET);
 
     // The final step is to display all the widgets.
     show_all_children();

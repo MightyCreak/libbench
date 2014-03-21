@@ -24,6 +24,7 @@
 #include <gtkmm/box.h>
 #include <gtkmm/uimanager.h>
 #include <gtkmm/actiongroup.h>
+#include <gtkmm/scrolledwindow.h>
 #include "benchmarkarea.h"
 #include "bench/xmlcommon.h"
 
@@ -45,6 +46,7 @@ private:
 private:
     // Member widgets.
     Gtk::Box m_box;
+    Gtk::ScrolledWindow m_scrollwnd;
     BenchMarkArea m_area;
 
     Glib::RefPtr<Gtk::UIManager> m_refUIManager;

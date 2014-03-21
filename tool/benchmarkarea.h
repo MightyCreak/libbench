@@ -21,6 +21,8 @@
 #define TOOL_BENCHMARKAREA_H
 
 #include <gtkmm/drawingarea.h>
+#include <cairomm/context.h>
+#include "drawcore.h"
 #include "bench/xmlcommon.h"
 
 namespace bench
@@ -40,39 +42,22 @@ protected:
     virtual bool on_draw(Cairo::RefPtr<Cairo::Context> const& cr) override;
     virtual bool on_scroll_event(GdkEventScroll* event) override;
 
-    // Draw methods.
-    void DrawCoreText(Cairo::RefPtr<Cairo::Context> const& cr,
-                      int rectangle_x, int rectangle_y,
-                      int rectangle_width, int rectangle_height,
-                      Glib::ustring const& text);
-    void DrawThreadName(Cairo::RefPtr<Cairo::Context> const& cr,
-                        int rectangle_x, int rectangle_y,
-                        int rectangle_width, int rectangle_height,
-                        Glib::ustring const& text);
+private:
+    // Create draw structures.
+    DrawCore* CreateCore(bench::DocumentCore const& docCore) const;
+    DrawThread* CreateThread(bench::DocumentThread const& docThread) const;
+    DrawBench* CreateBenchRec(bench::DocumentBench const& docBench, DrawBench* drawParent) const;
+
+    // Compute data for UI.
+    void ComputeUiData();
+    void ResizeWidget();
 
 private:
-    struct DrawBench
-    {
-        DrawBench* m_parent;
-        double m_startTime;
-        double m_stopTime;
-        Glib::ustring m_name;
-        std::vector<DrawBench> m_children;
-    };
-
-    struct DrawCore
-    {
-        Glib::ustring m_name;
-        std::vector<DrawBench> m_benches;
-    };
-
-private:
-    std::vector<DrawCore> m_drawCores;
+    DrawCoreVector m_drawCores;
     bench::Document const* m_document;
 
-    double m_timeToPx;
-    Glib::RefPtr<Pango::Layout> m_coreLayout;
-    Glib::RefPtr<Pango::Layout> m_threadLayout;
+    double m_timeScale;
+    Glib::RefPtr<Pango::Layout> m_layout;
 };
 
 #endif // TOOL_BENCHMARKAREA_H

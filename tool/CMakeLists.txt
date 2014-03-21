@@ -5,8 +5,15 @@ project(bench_viewer)
 add_executable(libbench_gtk
     benchmarkarea.h
     benchmarkarea.cpp
+    drawbench.h
+    drawbench.cpp
+    drawcore.h
+    drawcore.cpp
+    drawthread.h
+    drawthread.cpp
     libbenchwindow.h
     libbenchwindow.cpp
+    rectangle.h
     main.cpp)
 
 # C++ flags.
