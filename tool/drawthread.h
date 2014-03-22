@@ -17,13 +17,12 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 #ifndef TOOL_DRAWTHREAD_H
 #define TOOL_DRAWTHREAD_H
 
 #include <vector>
 #include <glibmm/ustring.h>
-#include <cairomm/context.h>
-#include <pangomm/layout.h>
 #include <pangomm/fontdescription.h>
 #include "drawbench.h"
 #include "rectangle.h"

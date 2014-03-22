@@ -18,6 +18,8 @@
  */
 
 #include <assert.h>
+#include <limits>
+#include <pangomm/layout.h>
 #include "drawcore.h"
 
 namespace
@@ -99,7 +101,7 @@ double DrawCore::GetHeight() const
 }
 
 void DrawCore::Draw(Cairo::RefPtr<Cairo::Context> const& cr, Glib::RefPtr<Pango::Layout>& layout,
-                    double timeScale, bool odd, int wndWidth) const
+                    double timeScale, bool odd, double timeStart, int wndWidth) const
 {
     // Set layout font.
     layout->set_font_description(m_font);
@@ -117,7 +119,10 @@ void DrawCore::Draw(Cairo::RefPtr<Cairo::Context> const& cr, Glib::RefPtr<Pango:
         cr->set_source_rgb(0.5, 0.5, 0.5);
     else
         cr->set_source_rgb(0.7, 0.7, 0.7);
-    DrawText(cr, layout, GetX(), GetY(), wndWidth, GetHeight());
+    DrawText(cr, layout, timeStart * timeScale);
+
+    // Draw tick lines.
+    DrawTickLines(cr, timeScale, timeStart, wndWidth);
 
     // Draw benches.
     for(DrawThread const* drawThread : m_threads)
@@ -126,19 +131,49 @@ void DrawCore::Draw(Cairo::RefPtr<Cairo::Context> const& cr, Glib::RefPtr<Pango:
     }
 }
 
-void DrawCore::DrawText(Cairo::RefPtr<Cairo::Context> const& cr, Glib::RefPtr<Pango::Layout>& layout,
-                        int rectangle_x, int rectangle_y, int rectangle_width, int rectangle_height) const
+void DrawCore::DrawText(Cairo::RefPtr<Cairo::Context> const& cr,
+                        Glib::RefPtr<Pango::Layout>& layout,
+                        int scrollLeft) const
 {
     // Get the text dimensions.
-    int text_width;
-    int text_height;
+    int textWidth;
+    int textHeight;
     layout->set_text(m_name);
-    layout->get_pixel_size(text_width, text_height);
+    layout->get_pixel_size(textWidth, textHeight);
 
     // Position the text in the middle
     cr->save();
-    cr->move_to(0.0, rectangle_y + (rectangle_height + text_width) / 2);
+    cr->move_to(GetX() + scrollLeft, GetY() + (GetHeight() + textWidth) / 2);
     cr->rotate(-kPiBy2);
     layout->show_in_cairo_context(cr);
+    cr->restore();
+}
+
+void DrawCore::DrawTickLines(Cairo::RefPtr<Cairo::Context> const& cr,
+                             double timeScale, double timeStart, int wndWidth) const
+{
+    cr->save();
+    cr->set_antialias(Cairo::ANTIALIAS_NONE);
+    cr->set_line_width(1.0);
+    std::valarray<double> dashes(2);
+    dashes[0] = 5.0;
+    dashes[1] = 8.0;
+    cr->set_dash(dashes, GetY());
+    cr->set_source_rgb(0.3, 0.3, 0.3);
+
+    int numTicks = ceil(wndWidth / timeScale);
+    for(int i = 0; i <= numTicks; ++i)
+    {
+        double x = i * timeScale;
+
+        if(timeStart != 0.0 || i != 0)
+        {
+            // Draw line.
+            cr->move_to(x, GetY());
+            cr->line_to(x, GetY() + GetHeight());
+            cr->stroke();
+        }
+    }
+
     cr->restore();
 }

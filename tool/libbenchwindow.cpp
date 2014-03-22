@@ -18,19 +18,23 @@
  */
 
 #include <iostream>
-#include <gtkmm/stock.h>
-#include <gtkmm/filechooserdialog.h>
 #include <gtkmm/aboutdialog.h>
+#include <gtkmm/actiongroup.h>
+#include <gtkmm/adjustment.h>
+#include <gtkmm/filechooserdialog.h>
+#include <gtkmm/stock.h>
+#include <gtkmm/uimanager.h>
 #include "libbenchwindow.h"
 #include "bench/xmlreader.h"
 
-LibBenchGtk::LibBenchGtk()
+LibbenchWindow::LibbenchWindow()
     : m_box(Gtk::ORIENTATION_VERTICAL)
+    , m_timeline(this)
+    , m_benchArea(this)
+    , m_timeScale(1e3) // 1s -> 1000px
 {
     set_title("LibBench UI");
-//    set_default_size(400, 200);
-
-    add(m_box);
+    set_default_size(600, 400);
 
     // Create actions for menus and toolbars.
     m_refActionGroup = Gtk::ActionGroup::create();
@@ -40,18 +44,18 @@ LibBenchGtk::LibBenchGtk()
 
     // File sub menu.
     m_refActionGroup->add(Gtk::Action::create("FileOpen", Gtk::Stock::OPEN),
-                          sigc::mem_fun(*this, &LibBenchGtk::OnMenuFileOpen));
+                          sigc::mem_fun(*this, &LibbenchWindow::OnMenuFileOpen));
     m_refActionGroup->add(Gtk::Action::create("FileClose", Gtk::Stock::CLOSE),
-                          sigc::mem_fun(*this, &LibBenchGtk::OnMenuFileClose));
+                          sigc::mem_fun(*this, &LibbenchWindow::OnMenuFileClose));
     m_refActionGroup->add(Gtk::Action::create("FileQuit", Gtk::Stock::QUIT),
-                          sigc::mem_fun(*this, &LibBenchGtk::OnMenuFileQuit));
+                          sigc::mem_fun(*this, &LibbenchWindow::OnMenuFileQuit));
 
     // Help menu.
     m_refActionGroup->add(Gtk::Action::create("HelpMenu", Gtk::Stock::HELP));
 
     // Help sub menu.
     m_refActionGroup->add(Gtk::Action::create("HelpAbout", Gtk::Stock::ABOUT),
-                          sigc::mem_fun(*this, &LibBenchGtk::OnMenuHelpAbout));
+                          sigc::mem_fun(*this, &LibbenchWindow::OnMenuHelpAbout));
 
     m_refUIManager = Gtk::UIManager::create();
     m_refUIManager->insert_action_group(m_refActionGroup);
@@ -86,6 +90,9 @@ LibBenchGtk::LibBenchGtk()
         std::cerr << "building menus failed: " << ex.what();
     }
 
+    m_scrollwnd.get_hadjustment()->signal_value_changed().connect(sigc::mem_fun(*this, &LibbenchWindow::OnHScrollValueChanged));
+    m_scrollwnd.get_vadjustment()->signal_value_changed().connect(sigc::mem_fun(*this, &LibbenchWindow::OnVScrollValueChanged));
+
     // Get the menubar and toolbar widgets, and add them to a container widget.
     Gtk::Widget* pMenubar = m_refUIManager->get_widget("/MenuBar");
     if(pMenubar)
@@ -96,20 +103,45 @@ LibBenchGtk::LibBenchGtk()
         m_box.pack_start(*pToolbar, Gtk::PACK_SHRINK);
 
     // Add the drawing area.
-//    m_area.set_size_request(1000, 1000);
-    m_scrollwnd.set_size_request(800, 600);
-    m_scrollwnd.add(m_area);
+    m_box.pack_start(m_timeline, Gtk::PACK_SHRINK);
+    m_scrollwnd.add(m_benchArea);
     m_box.pack_start(m_scrollwnd, Gtk::PACK_EXPAND_WIDGET);
+    add(m_box);
 
     // The final step is to display all the widgets.
     show_all_children();
 }
 
-LibBenchGtk::~LibBenchGtk()
+LibbenchWindow::~LibbenchWindow()
 {
 }
 
-void LibBenchGtk::OnMenuFileOpen()
+bool LibbenchWindow::IsFileOpened() const
+{
+    return !m_filepath.empty();
+}
+
+void LibbenchWindow::SetTimeScale(double scale)
+{
+    if(scale > 1.0e6)
+        scale = 1.0e6;
+    else if(scale < 1.0)
+        scale = 1.0;
+    if(m_timeScale != scale)
+    {
+        m_timeScale = scale;
+        m_timeline.SetTimeStart(m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale());
+        m_timeline.queue_draw();
+        m_scrollwnd.queue_draw();
+    }
+}
+
+double LibbenchWindow::GetTimeScale() const
+{
+    return m_timeScale;
+}
+
+void LibbenchWindow::OnMenuFileOpen()
 {
     Gtk::FileChooserDialog dialog("Please choose a file",
                                   Gtk::FILE_CHOOSER_ACTION_OPEN);
@@ -124,19 +156,20 @@ void LibBenchGtk::OnMenuFileOpen()
         OpenFile(dialog.get_filename());
 }
 
-void LibBenchGtk::OnMenuFileClose()
+void LibbenchWindow::OnMenuFileClose()
 {
-//    m_benchmark.Clear();
-    m_area.SetBenchMark(nullptr);
-    m_area.get_window()->invalidate(true);
+    m_filepath.clear();
+    m_benchArea.SetBenchMark(nullptr);
+    m_timeline.queue_draw();
+    m_benchArea.queue_draw();
 }
 
-void LibBenchGtk::OnMenuFileQuit()
+void LibbenchWindow::OnMenuFileQuit()
 {
     hide();
 }
 
-void LibBenchGtk::OnMenuHelpAbout()
+void LibbenchWindow::OnMenuHelpAbout()
 {
     Gtk::AboutDialog dialog;
     dialog.set_transient_for(*this);
@@ -145,7 +178,7 @@ void LibBenchGtk::OnMenuHelpAbout()
     dialog.set_copyright("Romain \"Creak\" Failliot");
     dialog.set_comments("This is just an example application.");
     dialog.set_license("LGPL v3");
-    dialog.set_website("http://foolstep.com");
+    dialog.set_website("https://github.com/MightyCreak/libbench");
     dialog.set_website_label("LibBench UI website");
     std::vector<Glib::ustring> list_authors;
     list_authors.push_back("Romain \"Creak\" Failliot");
@@ -153,13 +186,30 @@ void LibBenchGtk::OnMenuHelpAbout()
     dialog.run();
 }
 
-void LibBenchGtk::OpenFile(std::string const& filename)
+void LibbenchWindow::OnHScrollValueChanged()
 {
-//    m_document.Clear();
+    double startTime = m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale();
+    m_benchArea.SetStartTime(startTime);
+    m_timeline.SetTimeStart(startTime);
+    m_timeline.queue_draw();
+    m_benchArea.queue_draw();
+}
+
+void LibbenchWindow::OnVScrollValueChanged()
+{
+    m_benchArea.queue_draw();
+}
+
+void LibbenchWindow::OpenFile(std::string const& filename)
+{
+    m_filepath = filename;
 
     bench::XmlReader xmlReader;
-    xmlReader.Read(filename.c_str(), m_document);
+    bench::Document document;
+    xmlReader.Read(filename.c_str(), document);
 
-    m_area.SetBenchMark(&m_document);
-    m_area.get_window()->invalidate(true);
+    m_benchArea.SetBenchMark(&document);
+    m_timeline.SetTimeStart(m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale());
+    m_timeline.queue_draw();
+    m_benchArea.queue_draw();
 }

@@ -19,6 +19,8 @@
 
 #include <assert.h>
 #include <boost/crc.hpp>
+#include <cairomm/context.h>
+#include <pangomm/layout.h>
 #include "drawbench.h"
 
 int const DrawBench::k_benchHeight = 20;
@@ -141,13 +143,13 @@ void DrawBench::Draw(Cairo::RefPtr<Cairo::Context> const& cr,
 void DrawBench::DrawText(Cairo::RefPtr<Cairo::Context> const& cr, Glib::RefPtr<Pango::Layout>& layout,
                          int rect_x, int rect_y, int rect_width, int rect_height) const
 {
-    // Get the text dimensions (it updates the variables -- by reference)
+    // Get the text dimensions.
     int text_width;
     int text_height;
     layout->set_text(m_name);
     layout->get_pixel_size(text_width, text_height);
 
-    // Position the text in the middle
+    // Position the text in the middle.
     cr->save();
     cr->clip();
     cr->set_source_rgb(0.0, 0.0, 0.0);

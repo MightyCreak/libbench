@@ -17,13 +17,12 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 #ifndef TOOL_DRAWCORE_H
 #define TOOL_DRAWCORE_H
 
 #include <vector>
 #include <glibmm/ustring.h>
-#include <cairomm/context.h>
-#include <pangomm/layout.h>
 #include <pangomm/fontdescription.h>
 #include "drawthread.h"
 #include "rectangle.h"
@@ -42,11 +41,15 @@ public:
     double GetWidth() const;
     double GetHeight() const;
     void Draw(Cairo::RefPtr<Cairo::Context> const& cr, Glib::RefPtr<Pango::Layout>& layout,
-              double timeScale, bool odd, int wndWidth) const;
+              double timeScale, bool odd, double timeStart, int wndWidth) const;
 
 private:
-    void DrawText(Cairo::RefPtr<Cairo::Context> const& cr, Glib::RefPtr<Pango::Layout>& layout,
-                  int rectangle_x, int rectangle_y, int rectangle_width, int rectangle_height) const;
+    void DrawText(Cairo::RefPtr<Cairo::Context> const& cr,
+                  Glib::RefPtr<Pango::Layout>& layout,
+                  int scrollLeft) const;
+
+    void DrawTickLines(Cairo::RefPtr<Cairo::Context> const& cr,
+                       double timeScale, double timeStart, int wndWidth) const;
 
 public:
     Glib::ustring m_name;

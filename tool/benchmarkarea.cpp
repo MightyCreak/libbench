@@ -21,11 +21,13 @@
 #include <limits>
 #include <algorithm>
 #include "benchmarkarea.h"
+#include "libbenchwindow.h"
 #include "bench/thread.h"
 
-BenchMarkArea::BenchMarkArea()
-    : m_document(nullptr)
-    , m_timeScale(1e3) // 1s -> 1000px
+BenchMarkArea::BenchMarkArea(LibbenchWindow* window)
+    : m_mainWindow(window)
+    , m_timeLength(0.0)
+    , m_ctrlPressed(false)
 {
     // Create layout.
     // http://developer.gnome.org/pangomm/unstable/classPango_1_1Layout.html
@@ -37,19 +39,25 @@ BenchMarkArea::BenchMarkArea()
 void BenchMarkArea::SetBenchMark(bench::Document const* document)
 {
     m_drawCores.clear();
-    m_document = document;
-    if(!m_document)
-        return;
-
-    // Fill bench lists.
-    m_drawCores.reserve(m_document->m_cores.size());
-    for(bench::DocumentCore const& docCore : m_document->m_cores)
+    if(document)
     {
-        DrawCore* drawCore = CreateCore(docCore);
-        m_drawCores.push_back(drawCore);
+        // Fill draw data.
+        m_drawCores.reserve(document->m_cores.size());
+        for(bench::DocumentCore const& docCore : document->m_cores)
+        {
+            DrawCore* drawCore = CreateCore(docCore);
+            m_drawCores.push_back(drawCore);
+        }
+
+        ComputeUiData();
     }
 
-    ComputeUiData();
+    ResizeWidget();
+}
+
+void BenchMarkArea::SetStartTime(double startTime)
+{
+    m_startTime = startTime;
 }
 
 DrawCore* BenchMarkArea::CreateCore(bench::DocumentCore const& docCore) const
@@ -101,46 +109,53 @@ DrawBench* BenchMarkArea::CreateBenchRec(bench::DocumentBench const& docBench,
 
 void BenchMarkArea::ComputeUiData()
 {
-    double top = 0;
+    m_timeLength = 0.0;
+    double top = 0.0;
     for(DrawCore* drawCore : m_drawCores)
     {
         drawCore->ComputeUiData(top);
         top += drawCore->GetHeight();
+        m_timeLength = std::max(m_timeLength, drawCore->GetX() + drawCore->GetWidth());
     }
-
-    ResizeWidget();
 }
 
 void BenchMarkArea::ResizeWidget()
 {
-    double xMin = std::numeric_limits<double>::max();
-    double xMax = std::numeric_limits<double>::min();
-    double height = 0.0;
-    for(DrawCore* drawCore : m_drawCores)
+    if(!m_drawCores.empty())
     {
-        xMin = std::min(xMin, drawCore->GetX());
-        xMax = std::max(xMax, drawCore->GetX() + drawCore->GetWidth());
-        height += drawCore->GetHeight();
-    }
+        double height = 0.0;
+        for(DrawCore* drawCore : m_drawCores)
+        {
+            height += drawCore->GetHeight();
+        }
 
-    set_size_request((xMax - xMin) * m_timeScale, height);
+        set_size_request(GetTimeLength() * m_mainWindow->GetTimeScale(), height);
+    }
+    else
+    {
+        set_size_request();
+    }
+}
+
+double BenchMarkArea::GetTimeLength() const
+{
+    return m_timeLength;
 }
 
 bool BenchMarkArea::on_draw(Cairo::RefPtr<Cairo::Context> const& cr)
 {
-    if(!m_document)
+    if(!m_mainWindow->IsFileOpened())
         return false;
 
     cr->save();
     cr->set_antialias(Cairo::ANTIALIAS_NONE);
 
     // Draw cores' background.
-    Gtk::Allocation allocation = get_allocation();
-    int const coreWidth = allocation.get_width();
+    int const coreWidth = get_allocation().get_width();
     bool odd = false;
     for(DrawCore const* drawCore : m_drawCores)
     {
-        drawCore->Draw(cr, m_layout, m_timeScale, odd, coreWidth);
+        drawCore->Draw(cr, m_layout, m_mainWindow->GetTimeScale(), odd, m_startTime, coreWidth);
         odd = !odd;
     }
 
@@ -150,26 +165,24 @@ bool BenchMarkArea::on_draw(Cairo::RefPtr<Cairo::Context> const& cr)
 
 bool BenchMarkArea::on_scroll_event(GdkEventScroll* event)
 {
-    switch(event->direction)
+    if(event->state & GDK_CONTROL_MASK)
     {
-    case GDK_SCROLL_UP:
-        m_timeScale *= 1.5;
-        if(m_timeScale > 1.0e6)
-            m_timeScale = 1.0e6;
-        ResizeWidget();
-        queue_draw();
-        break;
-    case GDK_SCROLL_DOWN:
-        m_timeScale /= 1.5;
-        if(m_timeScale < 1.0)
-            m_timeScale = 1.0;
-        ResizeWidget();
-        queue_draw();
-        break;
-        
-    default:
-        break;
+        switch(event->direction)
+        {
+        case GDK_SCROLL_UP:
+            m_mainWindow->SetTimeScale(m_mainWindow->GetTimeScale() * 1.5);
+            ResizeWidget();
+            return true;
+
+        case GDK_SCROLL_DOWN:
+            m_mainWindow->SetTimeScale(m_mainWindow->GetTimeScale() / 1.5);
+            ResizeWidget();
+            return true;
+
+        default:
+            break;
+        }
     }
 
-    return true;
+    return false;
 }

@@ -19,6 +19,7 @@
 
 #include <assert.h>
 #include <limits>
+#include <pangomm/layout.h>
 #include "drawthread.h"
 
 DrawThread::DrawThread()

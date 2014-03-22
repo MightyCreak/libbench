@@ -17,14 +17,25 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 #ifndef TOOL_DRAWBENCH_H
 #define TOOL_DRAWBENCH_H
 
 #include <vector>
 #include <glibmm/ustring.h>
-#include <cairomm/context.h>
-#include <pangomm/layout.h>
+#include <glibmm/refptr.h>
+#include <cairomm/refptr.h>
 #include "rectangle.h"
+
+namespace Cairo
+{
+    class Context;
+}
+
+namespace Pango
+{
+    class Layout;
+}
 
 class DrawBench;
 typedef std::vector<DrawBench*> DrawBenchVector;

@@ -17,6 +17,7 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 #ifndef TOOL_RECTANGLE_H
 #define TOOL_RECTANGLE_H
 

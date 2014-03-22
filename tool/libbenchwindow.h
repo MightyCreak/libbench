@@ -17,22 +17,33 @@
  * along with libbench. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 #ifndef TOOL_LIBBENCHWINDOW_H
 #define TOOL_LIBBENCHWINDOW_H
 
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>
-#include <gtkmm/uimanager.h>
-#include <gtkmm/actiongroup.h>
 #include <gtkmm/scrolledwindow.h>
 #include "benchmarkarea.h"
+#include "timeline.h"
 #include "bench/xmlcommon.h"
 
-class LibBenchGtk : public Gtk::Window
+namespace Gtk
+{
+    class UIManager;
+    class ActionGroup;
+}
+
+class LibbenchWindow : public Gtk::Window
 {
 public:
-    LibBenchGtk();
-    virtual ~LibBenchGtk();
+    LibbenchWindow();
+    virtual ~LibbenchWindow();
+
+    bool IsFileOpened() const;
+
+    void SetTimeScale(double scale);
+    double GetTimeScale() const;
 
 private:
     // Signal handlers.
@@ -40,19 +51,23 @@ private:
     void OnMenuFileClose();
     void OnMenuFileQuit();
     void OnMenuHelpAbout();
+    void OnHScrollValueChanged();
+    void OnVScrollValueChanged();
 
     void OpenFile(std::string const& filename);
 
 private:
     // Member widgets.
     Gtk::Box m_box;
+    TimeLine m_timeline;
     Gtk::ScrolledWindow m_scrollwnd;
-    BenchMarkArea m_area;
+    BenchMarkArea m_benchArea;
 
     Glib::RefPtr<Gtk::UIManager> m_refUIManager;
     Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
-    bench::Document m_document;
+    Glib::ustring m_filepath;
+    double m_timeScale;
 };
 
 #endif // TOOL_LIBBENCHWINDOW_H

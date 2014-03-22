@@ -14,10 +14,12 @@ add_executable(libbench_gtk
     libbenchwindow.h
     libbenchwindow.cpp
     rectangle.h
+    timeline.h
+    timeline.cpp
     main.cpp)
 
 # C++ flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pthread") #-Werror 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -pthread") #-Werror
 
 # Defines.
 #add_definitions(-DUSE_LIBBENCH)

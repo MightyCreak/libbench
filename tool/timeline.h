@@ -18,54 +18,31 @@
  */
 
 #pragma once
-#ifndef TOOL_BENCHMARKAREA_H
-#define TOOL_BENCHMARKAREA_H
+#ifndef TOOL_TIMELINE_H
+#define TOOL_TIMELINE_H
 
 #include <gtkmm/drawingarea.h>
-#include "drawcore.h"
-#include "bench/xmlcommon.h"
-
-namespace bench
-{
-    class BenchMark;
-}
 
 class LibbenchWindow;
 
-class BenchMarkArea : public Gtk::DrawingArea
+class TimeLine : public Gtk::DrawingArea
 {
 public:
-    BenchMarkArea(LibbenchWindow* window);
+    TimeLine(LibbenchWindow *window);
 
-    void SetBenchMark(bench::Document const* document);
-
-    void SetStartTime(double startTime);
-
-    double GetTimeLength() const;
+    void SetTimeStart(double timeStart);
+    double GetTimeStart() const;
 
 protected:
     // Override default signal handler.
     virtual bool on_draw(Cairo::RefPtr<Cairo::Context> const& cr) override;
-    virtual bool on_scroll_event(GdkEventScroll* event) override;
-
-private:
-    // Create draw structures.
-    DrawCore* CreateCore(bench::DocumentCore const& docCore) const;
-    DrawThread* CreateThread(bench::DocumentThread const& docThread) const;
-    DrawBench* CreateBenchRec(bench::DocumentBench const& docBench, DrawBench* drawParent) const;
-
-    // Compute data for UI.
-    void ComputeUiData();
-    void ResizeWidget();
 
 private:
     LibbenchWindow* m_mainWindow;
-    DrawCoreVector m_drawCores;
-    double m_startTime;
-    double m_timeLength;
-    bool m_ctrlPressed;
+    double m_timeStart;
 
     Glib::RefPtr<Pango::Layout> m_layout;
+    Pango::FontDescription m_font;
 };
 
-#endif // TOOL_BENCHMARKAREA_H
+#endif // TOOL_TIMELINE_H
