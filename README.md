@@ -51,6 +51,17 @@ application with the bench library, *initialize* it, *add markers* you want to
 profile your code, *save* the profiling into a file, and then *shutdown* the
 library. That's all you'll need to do!
 
+### Link the library
+
+The library's name is *libbench*. To activate the markers, you'll need to
+define `USE_LIBBENCH`.
+
+The define is an easy way to switch the markers activation. It is important to
+deactivate the markers when your application is optimized and ready to release.
+Profiling takes time and you don't want to waste time in the overhead induced
+by the markers. So simply remove or comment the define once you're done. You
+can let the markers where they are they will be completely disabled.
+
 ### Initialize the library
 
 To initialize the library, simply call `bench::Initialize()`.
@@ -73,13 +84,6 @@ function: `bench::WriteToXml(std::ostream& stream)`.
 
 As for intialization, to shutdown the library, simply call
 `bench::Shutdown()`.
-
-### Switch the profiler
-
-Profiling takes time and once your application is optimized, you don't want to
-waste time in the overhead induced by the markers.
-
-To do so, simply switch the activation with the define: `USE_LIBBENCH`.
 
 ### Example
 
