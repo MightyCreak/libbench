@@ -197,7 +197,7 @@ void LibbenchWindow::OnMenuHelpAbout()
     Gtk::AboutDialog dialog;
     dialog.set_transient_for(*this);
     dialog.set_program_name("LibBench UI");
-    dialog.set_version("0.0.1");
+    dialog.set_version("0.9");
     dialog.set_copyright("Romain \"Creak\" Failliot");
     dialog.set_comments("This is just an example application.");
     dialog.set_license("LGPL v3");
