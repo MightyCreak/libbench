@@ -52,7 +52,7 @@ void BenchMarkArea::SetBenchMark(bench::Document const* document)
         ComputeUiData();
     }
 
-    ResizeWidget();
+    ComputeSize();
 }
 
 void BenchMarkArea::SetStartTime(double startTime)
@@ -119,7 +119,7 @@ void BenchMarkArea::ComputeUiData()
     }
 }
 
-void BenchMarkArea::ResizeWidget()
+void BenchMarkArea::ComputeSize()
 {
     if(!m_drawCores.empty())
     {
@@ -161,28 +161,4 @@ bool BenchMarkArea::on_draw(Cairo::RefPtr<Cairo::Context> const& cr)
 
     cr->restore();
     return true;
-}
-
-bool BenchMarkArea::on_scroll_event(GdkEventScroll* event)
-{
-    if(event->state & GDK_CONTROL_MASK)
-    {
-        switch(event->direction)
-        {
-        case GDK_SCROLL_UP:
-            m_mainWindow->SetTimeScale(m_mainWindow->GetTimeScale() * 1.5);
-            ResizeWidget();
-            return true;
-
-        case GDK_SCROLL_DOWN:
-            m_mainWindow->SetTimeScale(m_mainWindow->GetTimeScale() / 1.5);
-            ResizeWidget();
-            return true;
-
-        default:
-            break;
-        }
-    }
-
-    return false;
 }

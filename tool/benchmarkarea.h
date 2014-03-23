@@ -43,10 +43,11 @@ public:
 
     double GetTimeLength() const;
 
+    void ComputeSize();
+
 protected:
     // Override default signal handler.
     virtual bool on_draw(Cairo::RefPtr<Cairo::Context> const& cr) override;
-    virtual bool on_scroll_event(GdkEventScroll* event) override;
 
 private:
     // Create draw structures.
@@ -56,7 +57,6 @@ private:
 
     // Compute data for UI.
     void ComputeUiData();
-    void ResizeWidget();
 
 private:
     LibbenchWindow* m_mainWindow;

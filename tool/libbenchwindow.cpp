@@ -90,6 +90,7 @@ LibbenchWindow::LibbenchWindow()
         std::cerr << "building menus failed: " << ex.what();
     }
 
+    m_benchArea.signal_scroll_event().connect(sigc::mem_fun(*this, &LibbenchWindow::OnAreaScrollEvent));
     m_scrollwnd.get_hadjustment()->signal_value_changed().connect(sigc::mem_fun(*this, &LibbenchWindow::OnHScrollValueChanged));
     m_scrollwnd.get_vadjustment()->signal_value_changed().connect(sigc::mem_fun(*this, &LibbenchWindow::OnVScrollValueChanged));
 
@@ -132,7 +133,8 @@ void LibbenchWindow::SetTimeScale(double scale)
         m_timeScale = scale;
         m_timeline.SetTimeStart(m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale());
         m_timeline.queue_draw();
-        m_scrollwnd.queue_draw();
+        m_benchArea.ComputeSize();
+        m_benchArea.queue_draw();
     }
 }
 
@@ -184,6 +186,28 @@ void LibbenchWindow::OnMenuHelpAbout()
     list_authors.push_back("Romain \"Creak\" Failliot");
     dialog.set_authors(list_authors);
     dialog.run();
+}
+
+bool LibbenchWindow::OnAreaScrollEvent(GdkEventScroll *event)
+{
+    if(event->state & GDK_CONTROL_MASK)
+    {
+        switch(event->direction)
+        {
+        case GDK_SCROLL_UP:
+            SetTimeScale(GetTimeScale() * 1.5);
+            return true;
+
+        case GDK_SCROLL_DOWN:
+            SetTimeScale(GetTimeScale() / 1.5);
+            return true;
+
+        default:
+            break;
+        }
+    }
+
+    return false;
 }
 
 void LibbenchWindow::OnHScrollValueChanged()

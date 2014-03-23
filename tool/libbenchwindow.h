@@ -51,6 +51,7 @@ private:
     void OnMenuFileClose();
     void OnMenuFileQuit();
     void OnMenuHelpAbout();
+    bool OnAreaScrollEvent(GdkEventScroll* event);
     void OnHScrollValueChanged();
     void OnVScrollValueChanged();
 
