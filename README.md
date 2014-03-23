@@ -46,10 +46,10 @@ libbench is licensed under the GNU LGPLv3.
 How to use it?
 --------------
 
-I wanted the library to be easy to use, so you'll need to link your application
-with the bench library, initialize it, add markers you want to profile your
-code, save the profiling into a file, and then shutdown the library.
-That's all you'll need to do!
+I wanted the library to be easy to use, so you'll need to *link* your
+application with the bench library, *initialize* it, *add markers* you want to
+profile your code, *save* the profiling into a file, and then *shutdown* the
+library. That's all you'll need to do!
 
 ### Initialize the library
 
@@ -63,6 +63,11 @@ The markers are presented in the form of macros:
 * `BENCH_SCOPED_PROFILE`  
   Start a scoped profile. It will be automatically ended at the end of the
   scope.
+
+### Save to a file
+
+Once your profiling is over, you can dump it into a file thanks to the
+function: `bench::WriteToXml(std::ostream& stream)`.
 
 ### Shutdown the library
 
@@ -78,7 +83,7 @@ To do so, simply switch the activation with the define: `USE_LIBBENCH`.
 
 ### Example
 
-There is an example with a multi-threaded profiling in the **test** directory.
+You'll find a multi-threaded example in the **test** directory.
 
 Authors
 -------
