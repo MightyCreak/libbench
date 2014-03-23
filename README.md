@@ -46,18 +46,37 @@ libbench is licensed under the GNU LGPLv3.
 How to use it?
 --------------
 
-You'll need to link your application with the bench library and add markers
-where you want to profile your code.
+I wanted the library to be easy to use, so you'll need to link your application
+with the bench library, initialize it, add markers you want to profile your
+code, save the profiling into a file, and then shutdown the library.
+That's all you'll need to do!
+
+### Initialize the library
+
+To initialize the library, simply call `bench::Initialize()`.
+
+### Place the markers
 
 The markers are presented in the form of macros:
 * `BENCH_START_PROFILE`  
-  Start a profile. Must be ended by a `BENCH_STOP_PROFILE`
+  Start a profile. Must be ended by a `BENCH_STOP_PROFILE`.
 * `BENCH_SCOPED_PROFILE`  
   Start a scoped profile. It will be automatically ended at the end of the
   scope.
 
-To prevent the overhead when you don't need to profile your code. The markers
-can be deactivated thanks to a simple define: `USE_LIBBENCH`.
+### Shutdown the library
+
+As for intialization, to shutdown the library, simply call
+`bench::Shutdown()`.
+
+### Switch the profiler
+
+Profiling takes time and once your application is optimized, you don't want to
+waste time in the overhead induced by the markers.
+
+To do so, simply switch the activation with the define: `USE_LIBBENCH`.
+
+### Example
 
 There is an example with a multi-threaded profiling in the **test** directory.
 
