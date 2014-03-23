@@ -127,10 +127,33 @@ void LibbenchWindow::SetTimeScale(double scale)
 {
     if(m_timeScale != scale)
     {
+        // Get the time under the pointer.
+        int oldX;
+        int y;
+        m_benchArea.get_pointer(oldX, y);
+        double pointerTime = oldX / m_timeScale;
+
+        // Change the time scale and recompute area size.
         m_timeScale = scale;
-        m_timeline.SetTimeStart(m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale());
         m_benchArea.ComputeSize();
 
+        // Compute the pointer position with the new time scale.
+        int newX = pointerTime * m_timeScale;
+
+        // The distance between the pointer and the left of the window must be the same.
+        double hvalue = m_scrollwnd.get_hadjustment()->get_value();
+        double hvalueMin = m_scrollwnd.get_hadjustment()->get_lower();
+        double hvalueMax = m_scrollwnd.get_hadjustment()->get_upper();
+        hvalue = newX - (oldX - hvalue);
+
+        // Clamp in boundaries.
+        hvalue = (hvalue > hvalueMax) ? hvalueMax : ((hvalue < hvalueMin) ? hvalueMin : hvalue);
+        m_scrollwnd.get_hadjustment()->set_value(hvalue);
+
+        // Update timeline.
+        m_timeline.SetTimeStart(hvalue / GetTimeScale());
+
+        // Ask redraw.
         m_timeline.queue_draw();
         m_benchArea.queue_draw();
     }
