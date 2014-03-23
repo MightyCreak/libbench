@@ -6,8 +6,11 @@ The in-code profiler library.
 This library is intended to provide profiling thanks to markers set directly
 in the code sources of the application to which it is linked.
 
-It produces an XML file that can be easily read by the viewer distributed
-within this project.
+It produces an XML file that can easily be read by the tool distributed with
+this project.
+
+The official source code is accessible under LGPLv3 here:  
+https://github.com/MightyCreak/libbench
 
 Directory structure
 -------------------
@@ -40,7 +43,26 @@ libbench is licensed under the GNU LGPLv3.
 > You should have received a copy of the GNU Lesser General Public License
 > along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+How to use it?
+--------------
+
+You'll need to link your application with the bench library and add markers
+where you want to profile your code.
+
+The markers are presented in the form of macros:
+* `BENCH_START_PROFILE`  
+  Start a profile. Must be ended by a `BENCH_STOP_PROFILE`
+* `BENCH_SCOPED_PROFILE`  
+  Start a scoped profile. It will be automatically ended at the end of the
+  scope.
+
+To prevent the overhead when you don't need to profile your code. The markers
+can be deactivated thanks to a simple define: `USE_LIBBENCH`.
+
+There is an example with a multi-threaded profiling in the **test** directory.
+
 Authors
 -------
 
 Romain "Creak" Failliot
+
