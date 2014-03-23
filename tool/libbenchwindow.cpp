@@ -125,16 +125,13 @@ bool LibbenchWindow::IsFileOpened() const
 
 void LibbenchWindow::SetTimeScale(double scale)
 {
-    if(scale > 1.0e6)
-        scale = 1.0e6;
-    else if(scale < 1.0)
-        scale = 1.0;
     if(m_timeScale != scale)
     {
         m_timeScale = scale;
         m_timeline.SetTimeStart(m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale());
-        m_timeline.queue_draw();
         m_benchArea.ComputeSize();
+
+        m_timeline.queue_draw();
         m_benchArea.queue_draw();
     }
 }
@@ -253,6 +250,15 @@ void LibbenchWindow::OpenFile(std::string const& filename)
 
 void LibbenchWindow::SetDesiredTimeScale(double scale)
 {
+    if(scale > 1.0e6)
+    {
+        scale = 1.0e6;
+    }
+    else if(scale < 1.0)
+    {
+        scale = 1.0;
+    }
+
     if(m_timeScale != scale)
     {
         m_timeScaleTrans.m_from = GetTimeScale();
