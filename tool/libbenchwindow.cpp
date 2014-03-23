@@ -24,6 +24,7 @@
 #include <gtkmm/filechooserdialog.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/uimanager.h>
+#include <glibmm/main.h>
 #include "libbenchwindow.h"
 #include "bench/xmlreader.h"
 
@@ -188,28 +189,6 @@ void LibbenchWindow::OnMenuHelpAbout()
     dialog.run();
 }
 
-bool LibbenchWindow::OnAreaScrollEvent(GdkEventScroll *event)
-{
-    if(event->state & GDK_CONTROL_MASK)
-    {
-        switch(event->direction)
-        {
-        case GDK_SCROLL_UP:
-            SetTimeScale(GetTimeScale() * 1.5);
-            return true;
-
-        case GDK_SCROLL_DOWN:
-            SetTimeScale(GetTimeScale() / 1.5);
-            return true;
-
-        default:
-            break;
-        }
-    }
-
-    return false;
-}
-
 void LibbenchWindow::OnHScrollValueChanged()
 {
     double startTime = m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale();
@@ -224,6 +203,40 @@ void LibbenchWindow::OnVScrollValueChanged()
     m_benchArea.queue_draw();
 }
 
+bool LibbenchWindow::OnAreaScrollEvent(GdkEventScroll *event)
+{
+    if(event->state & GDK_CONTROL_MASK)
+    {
+        switch(event->direction)
+        {
+        case GDK_SCROLL_UP:
+            SetDesiredTimeScale(GetTimeScale() * 1.5);
+            return true;
+
+        case GDK_SCROLL_DOWN:
+            SetDesiredTimeScale(GetTimeScale() / 1.5);
+            return true;
+
+        default:
+            break;
+        }
+    }
+
+    return false;
+}
+
+bool LibbenchWindow::OnZoomTransition()
+{
+    if(GetTimeScale() != m_timeScaleTrans.m_to)
+    {
+        m_timeScaleTrans.m_curInterval += m_timeScaleTrans.m_deltaInterval;
+        double ratio = double(m_timeScaleTrans.m_curInterval) / double(m_timeScaleTrans.m_endInterval);
+        SetTimeScale(m_timeScaleTrans.m_from + (m_timeScaleTrans.m_to - m_timeScaleTrans.m_from) * ratio);
+    }
+
+    return GetTimeScale() != m_timeScaleTrans.m_to;
+}
+
 void LibbenchWindow::OpenFile(std::string const& filename)
 {
     m_filepath = filename;
@@ -236,4 +249,18 @@ void LibbenchWindow::OpenFile(std::string const& filename)
     m_timeline.SetTimeStart(m_scrollwnd.get_hadjustment()->get_value() / GetTimeScale());
     m_timeline.queue_draw();
     m_benchArea.queue_draw();
+}
+
+void LibbenchWindow::SetDesiredTimeScale(double scale)
+{
+    if(m_timeScale != scale)
+    {
+        m_timeScaleTrans.m_from = GetTimeScale();
+        m_timeScaleTrans.m_to = scale;
+        m_timeScaleTrans.m_curInterval = 0;
+        m_timeScaleTrans.m_deltaInterval = 5;
+        m_timeScaleTrans.m_endInterval = 50;
+        Glib::signal_timeout().connect(sigc::mem_fun(*this, &LibbenchWindow::OnZoomTransition),
+                                       m_timeScaleTrans.m_deltaInterval);
+    }
 }

@@ -24,6 +24,7 @@
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
+#include <sigc++/connection.h>
 #include "benchmarkarea.h"
 #include "timeline.h"
 #include "bench/xmlcommon.h"
@@ -51,13 +52,25 @@ private:
     void OnMenuFileClose();
     void OnMenuFileQuit();
     void OnMenuHelpAbout();
-    bool OnAreaScrollEvent(GdkEventScroll* event);
     void OnHScrollValueChanged();
     void OnVScrollValueChanged();
+    bool OnAreaScrollEvent(GdkEventScroll* event);
+    bool OnZoomTransition();
 
     void OpenFile(std::string const& filename);
 
+    void SetDesiredTimeScale(double scale);
+
 private:
+    struct Transition
+    {
+        double m_from;
+        double m_to;
+        unsigned int m_curInterval;
+        unsigned int m_deltaInterval;
+        unsigned int m_endInterval;
+    };
+
     // Member widgets.
     Gtk::Box m_box;
     TimeLine m_timeline;
@@ -69,6 +82,7 @@ private:
 
     Glib::ustring m_filepath;
     double m_timeScale;
+    Transition m_timeScaleTrans;
 };
 
 #endif // TOOL_LIBBENCHWINDOW_H
