@@ -3,7 +3,7 @@ project(libbench)
 
 # The version number.
 set(libbench_VERSION_MAJOR 0)
-set(libbench_VERSION_MINOR 1)
+set(libbench_VERSION_MINOR 9)
 
 # Add the library.
 add_library(bench SHARED
