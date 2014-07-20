@@ -30,9 +30,10 @@ namespace bench
     public:
         friend class Manager;
 
-        Thread(char const* name);
+        Thread();
         ~Thread();
 
+        void SetName(char const* name);
         char const* GetName() const;
         char const* GetBenchName(uint32_t id) const;
         void StartBench(char const* name);

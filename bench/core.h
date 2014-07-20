@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <string>
+#include <thread>
 
 namespace bench
 {
@@ -37,7 +38,7 @@ namespace bench
         void SetName(char const* name);
         char const* GetName() const;
 
-        Thread* AddThread(pthread_t thread);
+        Thread* AddThread();
 
     private:
         typedef std::vector<Thread*> ThreadVector;

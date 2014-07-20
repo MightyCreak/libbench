@@ -19,7 +19,7 @@ add_executable(libbench_gtk
     main.cpp)
 
 # C++ flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -pthread") #-Werror
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall") #-Werror
 
 # Defines.
 #add_definitions(-DUSE_LIBBENCH)

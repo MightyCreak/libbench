@@ -42,6 +42,10 @@ namespace bench
     /// @param name New name of the core.
     void SetCoreName(unsigned int core, char const* name);
 
+    /// Set the name of the current thread.
+    /// @param name New name of the thread.
+    void SetThreadName(char const* name);
+
     /// Start a new bench.
     /// @param name Name of the bench.
     void StartBench(char const* name);

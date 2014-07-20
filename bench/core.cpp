@@ -20,14 +20,6 @@
 #include "core.h"
 #include "thread.h"
 
-namespace
-{
-    void GetThreadName(pthread_t threadId, char * name, size_t maxsize)
-    {
-        pthread_getname_np(threadId, name, maxsize);
-    }
-}
-
 namespace bench
 {
     Core::~Core()
@@ -49,11 +41,9 @@ namespace bench
         return m_name.c_str();
     }
 
-    Thread* Core::AddThread(pthread_t threadId)
+    Thread* Core::AddThread()
     {
-        char name[500];
-        GetThreadName(threadId, name, 500);
-        Thread* thread = new Thread(name);
+        Thread* thread = new Thread;
         m_threads.push_back(thread);
         return thread;
     }

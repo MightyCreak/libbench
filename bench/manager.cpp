@@ -19,8 +19,6 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <pthread.h>
-#include <sched.h>
 #include <thread>
 #include "manager.h"
 #include "core.h"
@@ -30,9 +28,9 @@
 
 namespace
 {
-    pthread_t GetThreadId()
+    std::thread::id GetThreadId()
     {
-        return pthread_self();
+        return std::this_thread::get_id();
     }
 }
 
@@ -60,8 +58,6 @@ namespace bench
 
     Manager::Manager()
     {
-        pthread_mutex_init(&m_mutex, nullptr);
-
         unsigned int numCores = std::thread::hardware_concurrency();
         m_cores.reserve(numCores);
         for(unsigned int u = 0; u < numCores; ++u)
@@ -82,8 +78,6 @@ namespace bench
             delete core;
         }
         m_cores.clear();
-
-        pthread_mutex_destroy(&m_mutex);
     }
 
     void Manager::SetCoreName(unsigned int core, char const* name)
@@ -92,36 +86,28 @@ namespace bench
         m_cores[core]->SetName(name);
     }
 
+    void Manager::SetThreadName(char const* name)
+    {
+        Thread* thread = GetOrRegisterThread();
+        thread->SetName(name);
+    }
+
     void Manager::StartBench(char const * name)
     {
-        // Get or register current thread.
-        pthread_mutex_lock(&m_mutex);
-        pthread_t pthrd = GetThreadId();
-        IdThreadMap::iterator it = m_threads.find(pthrd);
-        Thread* thread;
-        if(it != m_threads.end())
-        {
-            thread = it->second;
-        }
-        else
-        {
-            thread = RegisterThread(pthrd);
-        }
-        pthread_mutex_unlock(&m_mutex);
-
         // Start bench.
+        Thread* thread = GetOrRegisterThread();
         thread->StartBench(name);
     }
 
     void Manager::StopBench()
     {
         // Get current thread.
-        pthread_mutex_lock(&m_mutex);
-        pthread_t pthrd = GetThreadId();
-        IdThreadMap::iterator it = m_threads.find(pthrd);
+        m_mutex.lock();
+        std::thread::id thrdId = GetThreadId();
+        IdThreadMap::iterator it = m_threads.find(thrdId);
         assert(it != m_threads.end());
         Thread* thread = it->second;
-        pthread_mutex_unlock(&m_mutex);
+        m_mutex.unlock();
 
         // Stop bench.
         thread->StopBench();
@@ -129,19 +115,19 @@ namespace bench
 
     void Manager::Clear()
     {
-        pthread_mutex_lock(&m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
+
         for(Core* core : m_cores)
         {
             delete core;
         }
         m_cores.clear();
         m_threads.clear();
-        pthread_mutex_unlock(&m_mutex);
     }
 
     void Manager::Write(std::ostream & stream) const
     {
-        pthread_mutex_lock(&m_mutex);
+        m_mutex.lock();
 
         // Find min start time.
         bool first = true;
@@ -178,12 +164,17 @@ namespace bench
             {
                 docCore.m_threads.push_back(DocumentThread());
                 DocumentThread& docThread = docCore.m_threads.back();
-                docThread.m_name = thread->GetName();
+                char const* threadName = thread->GetName();
+                if(threadName)
+                {
+                    docThread.m_name = thread->GetName();
+                }
 
                 ConvertBenchChildren(*thread, Thread::kNoParent, docThread.m_benches, starttime);
             }
         }
-        pthread_mutex_unlock(&m_mutex);
+
+        m_mutex.unlock();
 
         XmlWriter xmlWriter(stream);
         xmlWriter.Write(doc);
@@ -217,12 +208,31 @@ namespace bench
         docBenches.shrink_to_fit();
     }
 
-    Thread* Manager::RegisterThread(pthread_t threadId)
+    Thread* Manager::GetOrRegisterThread()
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        std::thread::id thrdId = GetThreadId();
+        IdThreadMap::iterator it = m_threads.find(thrdId);
+        Thread* thread;
+        if(it != m_threads.end())
+        {
+            thread = it->second;
+        }
+        else
+        {
+            thread = RegisterThread(thrdId);
+        }
+
+        return thread;
+    }
+
+    Thread* Manager::RegisterThread(std::thread::id threadId)
     {
         int coreId = sched_getcpu();
         assert(coreId >= 0 && static_cast<size_t>(coreId) < m_cores.size());
         Core* core = m_cores[coreId];
-        Thread* thread = core->AddThread(threadId);
+        Thread* thread = core->AddThread();
         assert(thread);
         m_threads.insert(IdThreadMap::value_type(threadId, thread));
         return thread;

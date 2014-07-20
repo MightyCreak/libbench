@@ -43,6 +43,11 @@ namespace bench
         Manager::GetInstance()->SetCoreName(core, name);
     }
 
+    void SetThreadName(char const* name)
+    {
+        Manager::GetInstance()->SetThreadName(name);
+    }
+
     void StartBench(char const* name)
     {
         Manager::GetInstance()->StartBench(name);

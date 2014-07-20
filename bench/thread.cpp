@@ -37,8 +37,8 @@ namespace bench
 {
     int const Thread::kNoParent = -1;
 
-    Thread::Thread(char const* name)
-        : m_name(strdup(name))
+    Thread::Thread()
+        : m_name(nullptr)
         , m_curNode(kNoParent)
     {
         m_benches.reserve(100000);
@@ -51,6 +51,16 @@ namespace bench
             free(m_name);
             m_name = nullptr;
         }
+    }
+
+    void Thread::SetName(char const* name)
+    {
+        if(m_name)
+        {
+            free(m_name);
+        }
+
+        m_name = strdup(name);
     }
 
     char const* Thread::GetName() const

@@ -39,15 +39,19 @@ namespace bench
     };
 }
 
-#	define BENCH_START_PROFILE(name)		bench::StartBench(#name)
-#	define BENCH_STOP_PROFILE()			bench::StopBench()
-#	define BENCH_SCOPED_PROFILE(name)	bench::ScopedBench __libbench ## name(#name)
+#   define BENCH_SET_CORE_NAME(core, name)  bench::SetCoreName(core, name)
+#   define BENCH_SET_THREAD_NAME(name)      bench::SetThreadName(name)
+#   define BENCH_START_PROFILE(name)        bench::StartBench(#name)
+#   define BENCH_STOP_PROFILE()             bench::StopBench()
+#   define BENCH_SCOPED_PROFILE(name)       bench::ScopedBench __libbench ## name(#name)
 
 #else
 
-#	define BENCH_START_PROFILE(name)
-#	define BENCH_STOP_PROFILE()
-#	define BENCH_SCOPED_PROFILE(name)
+#   define BENCH_SET_CORE_NAME(core, name)
+#   define BENCH_SET_THREAD_NAME(name)
+#   define BENCH_START_PROFILE(name)
+#   define BENCH_STOP_PROFILE()
+#   define BENCH_SCOPED_PROFILE(name)
 
 #endif
 

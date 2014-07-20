@@ -23,6 +23,8 @@
 #include <vector>
 #include <map>
 #include <ostream>
+#include <thread>
+#include <mutex>
 #include "xmlcommon.h"
 
 namespace bench
@@ -43,6 +45,7 @@ namespace bench
         ~Manager();
 
         void SetCoreName(unsigned int core, char const* name);
+        void SetThreadName(char const* name);
         void StartBench(char const* name);
         void StopBench();
         void Clear();
@@ -55,17 +58,18 @@ namespace bench
                                   int parentIdx,
                                   std::vector<DocumentBench>& docBenches,
                                   __time_t starttime) const;
-        Thread* RegisterThread(pthread_t thread);
+        Thread* GetOrRegisterThread();
+        Thread* RegisterThread(std::thread::id thread);
 
     private:
         static Manager* ms_instance;
 
         typedef std::vector<Core*> CoreVector;
-        typedef std::map<pthread_t, Thread*> IdThreadMap;
+        typedef std::map<std::thread::id, Thread*> IdThreadMap;
 
         CoreVector m_cores;
         IdThreadMap m_threads;
-        mutable pthread_mutex_t m_mutex;
+        mutable std::mutex m_mutex;
     };
 }
 

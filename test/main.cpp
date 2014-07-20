@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <pthread.h>
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -34,121 +33,82 @@
 #include "bench/xmlreader.h"
 #include "bench/xmlwriter.h"
 
-void * my_thread_process1(void * arg)
+void my_thread_process1()
 {
-    pthread_setname_np(pthread_self(), "process1");
+    BENCH_SET_THREAD_NAME("process1");
 
     BENCH_SCOPED_PROFILE(my_thread_process1);
     for (int i = 0; i < 5; ++i)
     {
         BENCH_SCOPED_PROFILE(my_second_bench);
-        for (int j = 0; j < 1000000; ++j)
-        {
-            BENCH_SCOPED_PROFILE(useless);
-            j += 1;
-            j -= 1;
-        }
-        i += 1;
-        i -= 1;
-    }
 
-    pthread_exit(0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        BENCH_START_PROFILE(wait_500ms);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        BENCH_STOP_PROFILE();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
 }
 
-void * my_thread_process2(void * arg)
+void my_thread_process2(int startDelay)
 {
-    pthread_setname_np(pthread_self(), "process2");
+    std::this_thread::sleep_for(std::chrono::milliseconds(startDelay));
+
+    BENCH_SET_THREAD_NAME("process2");
 
     BENCH_SCOPED_PROFILE(my_thread_process2);
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 50; ++i)
     {
-        BENCH_SCOPED_PROFILE(my_second_bench);
-        for (int j = 0; j < 1000000; ++j)
-        {
-            j += 1;
-            j -= 1;
-        }
-        i += 1;
-        i -= 1;
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        BENCH_SCOPED_PROFILE(wait_20ms);
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
-
-    pthread_exit(0);
-}
-
-void * my_thread_process3(void * arg)
-{
-    pthread_setname_np(pthread_self(), "process3");
-
-    BENCH_SCOPED_PROFILE(my_thread_process3);
-    for (int i = 0; i < 10000; ++i)
-    {
-        BENCH_SCOPED_PROFILE(useless);
-        i += 1;
-        i -= 1;
-    }
-
-    pthread_exit(0);
 }
 
 int main(int argc, char ** argv)
 {
     bench::Initialize();
-
     std::cout << "libbench v" << bench::GetVersionString() << std::endl;
 
-    unsigned int thrIdx = 0;
-    pthread_t thr[20];
-    pthread_attr_t thr_attr;
-    cpu_set_t cpuset;
+    std::vector<std::thread> threads;
 
-    pthread_attr_init(&thr_attr);
-    CPU_ZERO(&cpuset);
-    CPU_SET(0, &cpuset);
-    pthread_attr_setaffinity_np(&thr_attr, sizeof(cpu_set_t), &cpuset);
-    if (pthread_create(&thr[thrIdx], &thr_attr, my_thread_process1, nullptr) == 0) {
-        ++thrIdx;
+    // Call my_thread_process1 on core 0.
+    {
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(0, &cpuset);
+        threads.push_back(std::thread(my_thread_process1));
+        pthread_setaffinity_np(threads.back().native_handle(), sizeof(cpu_set_t), &cpuset);
     }
-    else {
-        std::cerr << "pthread_create error for thread " << thrIdx << std::endl;
-    }
-    pthread_attr_destroy(&thr_attr);
 
-    pthread_attr_init(&thr_attr);
-    CPU_ZERO(&cpuset);
-    CPU_SET(1, &cpuset);
-    pthread_attr_setaffinity_np(&thr_attr, sizeof(cpu_set_t), &cpuset);
-    if (pthread_create(&thr[thrIdx], &thr_attr, my_thread_process2, nullptr) == 0) {
-        ++thrIdx;
+    // Call my_thread_process1 on core 1.
+    {
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(1, &cpuset);
+        threads.push_back(std::thread(my_thread_process1));
+        pthread_setaffinity_np(threads.back().native_handle(), sizeof(cpu_set_t), &cpuset);
     }
-    else {
-        std::cerr << "pthread_create error for thread " << thrIdx << std::endl;
-    }
-    pthread_attr_destroy(&thr_attr);
 
+    // Call my_thread_process2 20 times randomly accross cores.
     unsigned int numCores = std::thread::hardware_concurrency();
     std::default_random_engine generator;
-    std::uniform_int_distribution<int> distribution(1, numCores - 1);
-    while(thrIdx < 20)
+    std::uniform_int_distribution<int> coreDistrib(0, numCores - 1);
+    std::uniform_int_distribution<int> waitDistrib(500, 1000);
+    for(unsigned int u = 0; u < 20; ++u)
     {
-        int coreId = distribution(generator);
-
-        pthread_attr_init(&thr_attr);
+        int coreId = coreDistrib(generator);
+        cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
         CPU_SET(coreId, &cpuset);
-        pthread_attr_setaffinity_np(&thr_attr, sizeof(cpu_set_t), &cpuset);
-        if (pthread_create(&thr[thrIdx], &thr_attr, my_thread_process3, nullptr) == 0) {
-            ++thrIdx;
-        }
-        else {
-            std::cerr << "pthread_create error for thread " << thrIdx << std::endl;
-        }
-        pthread_attr_destroy(&thr_attr);
+        threads.push_back(std::thread(my_thread_process2, waitDistrib(generator)));
+        pthread_setaffinity_np(threads.back().native_handle(), sizeof(cpu_set_t), &cpuset);
     }
 
-    for(unsigned int u = 0; u < thrIdx; ++u)
+    // Join all the threads.
+    for(std::thread& thr : threads)
     {
-        void * ret;
-        pthread_join(thr[u], &ret);
+        thr.join();
     }
 
     if(argc > 1)
