@@ -100,7 +100,7 @@ DrawBench* BenchMarkArea::CreateBenchRec(bench::DocumentBench const& docBench,
     crc.process_bytes(docBench.m_name.c_str(), docBench.m_name.length());
     drawBench->m_color = crc.checksum() & 0x00ffffff;
     Glib::ustring time = Glib::ustring::format(std::fixed,
-                                               std::setprecision(2),
+                                               std::setprecision(4),
                                                docBench.m_stop - docBench.m_start);
     drawBench->m_name = Glib::ustring::compose("%1 (%2s)",
                                                docBench.m_name,
