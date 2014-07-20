@@ -161,14 +161,6 @@ int main(int argc, char ** argv)
         bench::XmlReader xmlReader;
         bench::Document doc;
         xmlReader.Read(Glib::ustring(argv[1]), doc);
-
-//        libbench::XmlReader xmlReader;
-//        libbench::BenchMark readBenchmark;
-//        xmlReader.Read(Glib::ustring(argv[1]), readBenchmark);
-
-//        std::ofstream testfilestream("test.xml", std::ofstream::out);
-//        libbench::XmlWriter xmlWriter(testfilestream);
-//        xmlWriter.Write(readBenchmark);
     }
     else
     {
