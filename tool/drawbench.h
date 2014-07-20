@@ -68,6 +68,7 @@ public:
     double m_startTime;
     double m_stopTime;
     int m_depth;
+    uint32_t m_color;
     Glib::ustring m_name;
     DrawBenchVector m_children;
 

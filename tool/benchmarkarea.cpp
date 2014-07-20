@@ -18,8 +18,10 @@
  */
 
 #include <iostream>
+#include <iomanip>
 #include <limits>
 #include <algorithm>
+#include <boost/crc.hpp>
 #include "benchmarkarea.h"
 #include "libbenchwindow.h"
 #include "bench/thread.h"
@@ -94,7 +96,15 @@ DrawBench* BenchMarkArea::CreateBenchRec(bench::DocumentBench const& docBench,
 {
     DrawBench* drawBench = new DrawBench();
     drawBench->m_parent = drawParent;
-    drawBench->m_name = docBench.m_name;
+    boost::crc_32_type crc;
+    crc.process_bytes(docBench.m_name.c_str(), docBench.m_name.length());
+    drawBench->m_color = crc.checksum() & 0x00ffffff;
+    Glib::ustring time = Glib::ustring::format(std::fixed,
+                                               std::setprecision(2),
+                                               docBench.m_stop - docBench.m_start);
+    drawBench->m_name = Glib::ustring::compose("%1 (%2s)",
+                                               docBench.m_name,
+                                               time);
     drawBench->m_startTime = docBench.m_start;
     drawBench->m_stopTime = docBench.m_stop;
     drawBench->m_children.reserve(docBench.m_benches.size());

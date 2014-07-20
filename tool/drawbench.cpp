@@ -18,7 +18,6 @@
  */
 
 #include <assert.h>
-#include <boost/crc.hpp>
 #include <cairomm/context.h>
 #include <pangomm/layout.h>
 #include "drawbench.h"
@@ -119,12 +118,9 @@ void DrawBench::Draw(Cairo::RefPtr<Cairo::Context> const& cr,
 
         cr->rectangle(benchLeft, GetY(), benchWidth, GetHeight());
         cr->set_line_width(1.0);
-
-        boost::crc_32_type crc;
-        crc.process_bytes(m_name.c_str(), m_name.length());
-        uint32_t id = crc.checksum();
-
-        cr->set_source_rgb(((id >> 0) & 0xff) / 255.0, ((id >> 8) & 0xff) / 255.0, ((id >> 16) & 0xff) / 255.0);
+        cr->set_source_rgb(((m_color >> 0) & 0xff) / 255.0,
+                           ((m_color >> 8) & 0xff) / 255.0,
+                           ((m_color >> 16) & 0xff) / 255.0);
         cr->fill_preserve();
         cr->set_source_rgb(0.0, 0.0, 0.0);
         cr->stroke_preserve();
